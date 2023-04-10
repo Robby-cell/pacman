@@ -38,7 +38,7 @@ impl Game {
 
     pub fn render(&mut self, args: &RenderArgs) {
         self.gl.draw(args.viewport(), |_c, gl| {
-            graphics::clear([0., 0., 0.2, 1.], gl);
+            graphics::clear([0., 0., 0.1, 1.], gl);
 
             self.player.render(gl, args);
             for collect in self.collects.iter_mut() {

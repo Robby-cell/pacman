@@ -13,7 +13,6 @@ pub enum Direction {
     Right,
     Down,
     Left,
-    Stop,
 }
 
 pub enum PlayerState {
@@ -45,29 +44,30 @@ pub struct Player {
     half: Box<Texture>,
     open: Box<Texture>,
     travel: f64,
+    moving: bool,
 }
 
 impl Moveable for Player {
     fn move_o(&mut self) {
-        match self.direction {
-            Direction::Up => {
-                self.travel += self.speed;
-                self.y -= self.speed
+        if self.moving {
+            match self.direction {
+                Direction::Up => {
+                    self.travel += self.speed;
+                    self.y -= self.speed
+                }
+                Direction::Right => {
+                    self.travel += self.speed;
+                    self.x += self.speed
+                }
+                Direction::Down => {
+                    self.travel += self.speed;
+                    self.y += self.speed
+                }
+                Direction::Left => {
+                    self.travel += self.speed;
+                    self.x -= self.speed
+                }
             }
-            Direction::Right => {
-                self.travel += self.speed;
-                self.x += self.speed
-            }
-            Direction::Down => {
-                self.travel += self.speed;
-                self.y += self.speed
-            }
-            Direction::Left => {
-                self.travel += self.speed;
-                self.x -= self.speed
-            }
-
-            Direction::Stop => (),
         }
     }
 }
@@ -75,7 +75,7 @@ impl Moveable for Player {
 impl Player {
     pub fn new(x: f64, y: f64, health: i32) -> Self {
         Player {
-            direction: Direction::Stop,
+            direction: Direction::Up,
             state: PlayerState::Closed,
             speed: 4.,
             x,
@@ -103,6 +103,7 @@ impl Player {
                 .unwrap(),
             ),
             travel: 0.,
+            moving: false,
         }
     }
 
@@ -129,7 +130,6 @@ impl Player {
             Direction::Right => Direction::Left,
             Direction::Down => Direction::Up,
             Direction::Left => Direction::Right,
-            Direction::Stop => Direction::Stop,
         }
     }
 
@@ -139,14 +139,12 @@ impl Player {
             Direction::Down => self.y,                  //90
             Direction::Left => -(self.x + PLAYER_SIZE), //180
             Direction::Up => -(self.y + PLAYER_SIZE),   //270
-            Direction::Stop => self.x,
         };
         let y = match self.direction {
             Direction::Right => self.y,
             Direction::Down => -(self.x + PLAYER_SIZE),
             Direction::Left => -(self.y + PLAYER_SIZE),
             Direction::Up => self.x,
-            Direction::Stop => self.y,
         };
 
         gl.draw(args.viewport(), |context, gl| {
@@ -155,7 +153,6 @@ impl Player {
                 Direction::Down => 90.,
                 Direction::Left => 180.,
                 Direction::Up => -90.,
-                Direction::Stop => 0.,
             });
             Image::new().rect(square(x, y, PLAYER_SIZE)).draw(
                 match self.state {
@@ -172,10 +169,27 @@ impl Player {
 
     pub fn change_direction(&mut self, btn: &Button) {
         match btn {
-            &Button::Keyboard(Key::W) => self.direction = Direction::Up,
-            &Button::Keyboard(Key::D) => self.direction = Direction::Right,
-            &Button::Keyboard(Key::S) => self.direction = Direction::Down,
-            &Button::Keyboard(Key::A) => self.direction = Direction::Left,
+            &Button::Keyboard(Key::W) => {
+                self.moving = true;
+                self.direction = Direction::Up
+            }
+            &Button::Keyboard(Key::D) => {
+                self.moving = true;
+                self.direction = Direction::Right
+            }
+            &Button::Keyboard(Key::S) => {
+                self.moving = true;
+                self.direction = Direction::Down
+            }
+            &Button::Keyboard(Key::A) => {
+                self.moving = true;
+                self.direction = Direction::Left
+            }
+
+            &Button::Keyboard(Key::Space) => {
+                self.travel = 0.;
+                self.moving = false
+            }
 
             _ => (),
         }

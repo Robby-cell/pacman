@@ -29,7 +29,7 @@ impl Ghost {
                 Color::Red => Box::new(
                     Texture::from_path(
                         Path::new(
-                            "C:\\Users\\Robert\\OneDrive\\Pictures\\Saved Pictures\\image.png",
+                            "C:\\Users\\Robert\\OneDrive\\Pictures\\Saved Pictures\\image.png", // temp images
                         ), // temporary
                         &TextureSettings::new(),
                     )

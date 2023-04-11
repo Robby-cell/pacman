@@ -2,6 +2,7 @@ mod enemy;
 mod game;
 mod player;
 mod points;
+mod utilities;
 
 use game::Game;
 use glutin_window::GlutinWindow;
@@ -12,11 +13,12 @@ use piston::{
     window::WindowSettings,
     EventLoop,
 };
+use utilities::*;
 
 fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
     let opengl = OpenGL::V4_2;
 
-    let mut window: GlutinWindow = WindowSettings::new("Pacman!", (1500, 800))
+    let mut window: GlutinWindow = WindowSettings::new("Pacman!", (SCREEN_WIDTH, SCREEN_HEIGHT))
         .exit_on_esc(true)
         .build()
         .ok()

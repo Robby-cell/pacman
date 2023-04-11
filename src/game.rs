@@ -1,6 +1,7 @@
 use opengl_graphics::GlGraphics;
 use piston::input::*;
 
+use crate::enemy::*;
 use crate::player;
 use crate::points;
 
@@ -19,7 +20,8 @@ pub struct Game {
     gl: GlGraphics,
     pub player: Player,
     pub score: i32,
-    pub collects: Vec<Option<Point>>,
+    pub collects: Box<Vec<Option<Point>>>,
+    pub ghosts: Box<[Option<Ghost>; 4]>,
 }
 
 impl Game {
@@ -28,7 +30,8 @@ impl Game {
             gl,
             player: Player::new(x, y, health),
             score: 0,
-            collects: vec![Some(Point::new(4., 65., 1))],
+            collects: Box::new(vec![Some(Point::new(50., 70., 1))]),
+            ghosts: Box::new([Some(Ghost::new(67., 56., 2., Color::Red)), None, None, None]),
         }
     }
 
@@ -40,12 +43,12 @@ impl Game {
         self.gl.draw(args.viewport(), |_c, gl| {
             graphics::clear([0., 0., 0.1, 1.], gl);
 
-            self.player.render(gl, args);
             for collect in self.collects.iter_mut() {
                 if let Some(ref mut c) = collect {
-                    c.render(args)
+                    c.render(args) // render the collectible points.
                 }
             }
+            self.player.render(gl, args);
         })
     }
 

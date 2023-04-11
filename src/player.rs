@@ -1,19 +1,11 @@
 use std::path::Path;
 
 use crate::game::Moveable;
+use crate::utilities::*;
 
-use graphics::{self, rectangle::square, DrawState, Graphics, Image, Transformed};
+use graphics::{self, rectangle::square, DrawState, Image, Transformed};
 use opengl_graphics::{GlGraphics, Texture, TextureSettings};
 use piston::{input::RenderArgs, Button, Key};
-
-pub const PLAYER_SIZE: f64 = 50_f64;
-
-pub enum Direction {
-    Up,
-    Right,
-    Down,
-    Left,
-}
 
 pub enum PlayerState {
     Closed,
@@ -37,36 +29,32 @@ pub struct Player {
     pub direction: Direction,
     pub state: PlayerState,
     speed: f64,
-    x: f64,
-    y: f64,
+    pub x: f64,
+    pub y: f64,
     pub health: i32,
     closed: Box<Texture>,
     half: Box<Texture>,
     open: Box<Texture>,
-    travel: f64,
-    moving: bool,
+    travel: u8,
+    pub moving: bool,
 }
 
 impl Moveable for Player {
     fn move_o(&mut self) {
-        if self.moving {
+        if (self.y <= 0. && self.direction == Direction::Up)
+            || (self.x <= 0. && self.direction == Direction::Left)
+            || (self.y >= SCREEN_HEIGHT - PLAYER_SIZE && self.direction == Direction::Down)
+            || (self.x >= SCREEN_WIDTH - PLAYER_SIZE && self.direction == Direction::Right)
+        {
+            self.travel = 4;
+            self.moving = false;
+        } else if self.moving {
+            self.travel += 1;
             match self.direction {
-                Direction::Up => {
-                    self.travel += self.speed;
-                    self.y -= self.speed
-                }
-                Direction::Right => {
-                    self.travel += self.speed;
-                    self.x += self.speed
-                }
-                Direction::Down => {
-                    self.travel += self.speed;
-                    self.y += self.speed
-                }
-                Direction::Left => {
-                    self.travel += self.speed;
-                    self.x -= self.speed
-                }
+                Direction::Up => self.y -= self.speed,
+                Direction::Right => self.x += self.speed,
+                Direction::Down => self.y += self.speed,
+                Direction::Left => self.x -= self.speed,
             }
         }
     }
@@ -82,42 +70,33 @@ impl Player {
             y,
             health,
             closed: Box::new(
-                Texture::from_path(
-                    Path::new(".\\assets\\closed.png"), // temporary
-                    &TextureSettings::new(),
-                )
-                .unwrap(),
+                Texture::from_path(Path::new(".\\assets\\closed.png"), &TextureSettings::new())
+                    .unwrap(),
             ),
             half: Box::new(
-                Texture::from_path(
-                    Path::new(".\\assets\\half.png"), // temporary
-                    &TextureSettings::new(),
-                )
-                .unwrap(),
+                Texture::from_path(Path::new(".\\assets\\half.png"), &TextureSettings::new())
+                    .unwrap(),
             ),
             open: Box::new(
-                Texture::from_path(
-                    Path::new(".\\assets\\open.png"), // temporary
-                    &TextureSettings::new(),
-                )
-                .unwrap(),
+                Texture::from_path(Path::new(".\\assets\\open.png"), &TextureSettings::new())
+                    .unwrap(),
             ),
-            travel: 0.,
+            travel: 0,
             moving: false,
         }
     }
 
     pub fn update(&mut self) {
-        if self.travel < 32. {
+        if self.travel < 8 {
             self.state = PlayerState::Closed
-        } else if self.travel < 64. {
+        } else if self.travel < 16 {
             self.state = PlayerState::HalfOpen;
-        } else if self.travel < 96. {
+        } else if self.travel < 24 {
             self.state = PlayerState::Open;
-        } else if self.travel < 120. {
+        } else if self.travel < 30 {
             self.state = PlayerState::HalfOpen;
         } else {
-            self.travel = 0.;
+            self.travel = 0;
         }
         self.move_o();
     }
@@ -187,7 +166,7 @@ impl Player {
             }
 
             &Button::Keyboard(Key::Space) => {
-                self.travel = 0.;
+                self.travel = 4;
                 self.moving = false
             }
 

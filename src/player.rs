@@ -1,7 +1,7 @@
 use std::path::Path;
 
-use crate::game::Moveable;
-use crate::utilities::*;
+use crate::utilities::{Direction, Moveable};
+use crate::utilities::{PLAYER_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH};
 
 use graphics::{self, rectangle::square, DrawState, Image, Transformed};
 use opengl_graphics::{GlGraphics, Texture, TextureSettings};

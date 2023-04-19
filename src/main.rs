@@ -7,7 +7,6 @@ mod utilities;
 
 use game::Game;
 use glutin_window::GlutinWindow;
-use map::WallType;
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::{
     event_loop::{EventSettings, Events},

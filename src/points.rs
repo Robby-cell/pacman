@@ -7,17 +7,18 @@ use piston::RenderArgs;
 pub struct Point {
     gl: GlGraphics,
     #[derivative(Default)]
-    x: f64,
+    pub x: f64,
     #[derivative(Default)]
-    y: f64,
+    pub y: f64,
     #[derivative(Default)]
-    worth: i32,
+    pub worth: i32,
     #[derivative(Default)]
-    size: f64,
+    pub size: f64,
+    color: [f32; 4],
 }
 
 impl Point {
-    pub fn new(x: f64, y: f64, worth: i32) -> Self {
+    pub fn new(x: f64, y: f64, worth: i32, color: [f32; 4]) -> Self {
         Point {
             gl: GlGraphics::new(OpenGL::V4_2),
             x,
@@ -28,6 +29,7 @@ impl Point {
                 3 => 13.,
                 _ => 0.,
             },
+            color,
         }
     }
 
@@ -35,7 +37,7 @@ impl Point {
         let rect = graphics::rectangle::square(self.x, self.y, self.size);
 
         self.gl.draw(args.viewport(), |c, g| {
-            graphics::ellipse([1., 1., 1., 1.], rect, c.transform, g)
+            graphics::ellipse(self.color, rect, c.transform, g)
         })
     }
 }

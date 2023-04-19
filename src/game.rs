@@ -56,17 +56,17 @@ impl Game {
         for ghost in self.ghosts.iter_mut() {
             if let Some(g) = ghost {
                 for wall in self.walls.iter_mut() {
-                    if g.x - ENEMY_SIZE >= wall.x0
+                    if g.x + ENEMY_SIZE >= wall.x0
                         && g.x <= wall.x1
-                        && g.y - ENEMY_SIZE >= wall.y0
+                        && g.y + ENEMY_SIZE >= wall.y0
                         && g.y <= wall.y1
                     {
                         g.moving = false;
                         g.rethink();
-                        if g.x <= wall.x0 && g.direction != Direction::Right
-                            || g.x >= wall.x1 && g.direction != Direction::Left
-                            || g.y >= wall.y1 && g.direction != Direction::Up
-                            || g.y <= wall.y0 && g.direction != Direction::Down
+                        if (g.x + ENEMY_SIZE <= wall.x0 && g.direction != Direction::Right)
+                            || (g.x >= wall.x1 && g.direction != Direction::Left)
+                            || (g.y >= wall.y1 && g.direction != Direction::Up)
+                            || (g.y + ENEMY_SIZE <= wall.y0 && g.direction != Direction::Down)
                         {
                             g.moving = true;
                         }
@@ -104,6 +104,15 @@ impl Game {
                 format!("Score: {}", self.score).as_str(),
                 glyphs,
                 c.transform.trans(50., 250.),
+                gl,
+            )
+            .unwrap();
+            graphics::text(
+                [1., 0., 0., 1.],
+                22,
+                format!("Lives: {}", self.player.health).as_str(),
+                glyphs,
+                c.transform.trans(50., 300.),
                 gl,
             )
             .unwrap();

@@ -13,18 +13,6 @@ pub enum PlayerState {
     Open,
 }
 
-/*
-impl PlayerState {
-    pub fn update(&mut self) {
-        *self = match self {
-            Self::Closed => Self::HalfOpen,
-            Self::HalfOpen => Self::Open,
-            Self::Open => Self::Closed,
-        }
-    }
-}
-*/
-
 pub struct Player {
     pub direction: Direction,
     pub state: PlayerState,
@@ -65,21 +53,30 @@ impl Player {
         Player {
             direction: Direction::Up,
             state: PlayerState::Closed,
-            speed: 4.,
+            speed: 3.,
             x,
             y,
             health,
             closed: Box::new(
-                Texture::from_path(Path::new(".\\assets\\closed.png"), &TextureSettings::new())
-                    .unwrap(),
+                Texture::from_path(
+                    Path::new(".\\assets\\pacman\\closed.png"),
+                    &TextureSettings::new(),
+                )
+                .unwrap(),
             ),
             half: Box::new(
-                Texture::from_path(Path::new(".\\assets\\half.png"), &TextureSettings::new())
-                    .unwrap(),
+                Texture::from_path(
+                    Path::new(".\\assets\\pacman\\half.png"),
+                    &TextureSettings::new(),
+                )
+                .unwrap(),
             ),
             open: Box::new(
-                Texture::from_path(Path::new(".\\assets\\open.png"), &TextureSettings::new())
-                    .unwrap(),
+                Texture::from_path(
+                    Path::new(".\\assets\\pacman\\open.png"),
+                    &TextureSettings::new(),
+                )
+                .unwrap(),
             ),
             travel: 0,
             moving: false,

@@ -2,6 +2,13 @@ use derivative::Derivative;
 use opengl_graphics::*;
 use piston::RenderArgs;
 
+use crate::utilities::Collectible;
+
+pub enum PointType {
+    Big,
+    Small,
+}
+
 // this is a collectible item that can be picked up to increase the players score...
 #[derive(Derivative)]
 pub struct Point {
@@ -11,29 +18,50 @@ pub struct Point {
     #[derivative(Default)]
     pub y: f64,
     #[derivative(Default)]
-    pub worth: i32,
-    #[derivative(Default)]
     pub size: f64,
     color: [f32; 4],
+    point_type: PointType,
 }
 
-impl Point {
-    pub fn new(x: f64, y: f64, worth: i32, color: [f32; 4]) -> Self {
+impl Point {}
+
+impl Collectible for Point {
+    fn new(x: f64, y: f64, color: [f32; 4], point_type: PointType) -> Self {
+        use PointType::*;
         Point {
             gl: GlGraphics::new(OpenGL::V4_2),
             x,
             y,
-            worth,
-            size: match worth {
-                1 => 8.,
-                3 => 13.,
-                _ => 0.,
+            size: match point_type {
+                Big => 12.,
+                Small => 8.,
             },
             color,
+            point_type,
         }
     }
 
-    pub fn render(&mut self, args: &RenderArgs) {
+    fn collect(&mut self) -> i32 {
+        use PointType::*;
+        match self.point_type {
+            Big => 30,
+            Small => 10,
+        }
+    }
+
+    fn size(&self) -> f64 {
+        self.size
+    }
+
+    fn x(&self) -> f64 {
+        self.x
+    }
+
+    fn y(&self) -> f64 {
+        self.y
+    }
+
+    fn render(&mut self, args: &RenderArgs) {
         let rect = graphics::rectangle::square(self.x, self.y, self.size);
 
         self.gl.draw(args.viewport(), |c, g| {

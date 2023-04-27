@@ -11,43 +11,58 @@ use piston::input::{Button, RenderArgs};
 use crate::enemy::*;
 use crate::map::Wall;
 use crate::player;
-use crate::points;
+use crate::point;
+use crate::point::PointType;
+use crate::utilities::Collectible;
 use crate::utilities::Direction;
 use crate::utilities::ENEMY_SIZE;
 use crate::utilities::PLAYER_SIZE;
 
-use player::*;
-use points::*;
+use crate::builder;
 
-pub struct Game {
+use crate::player::*;
+use crate::utilities::SCREEN_HEIGHT;
+use crate::utilities::SCREEN_WIDTH;
+
+pub struct Game<T>
+where
+    T: Collectible,
+{
     gl: GlGraphics,
     pub player: Player,
     pub score: i32,
-    pub collects: Box<Vec<Option<Point>>>,
+    pub collects: Box<Vec<Option<T>>>,
     pub ghosts: Box<[Option<Ghost>; 4]>,
     wall_gl: GlGraphics,
-    walls: Box<[Wall]>,
+    walls: Vec<Wall>,
     //glyph_cache: GlyphCache,
 }
 
-impl Game {
+impl<T> Game<T>
+where
+    T: Collectible,
+{
     pub fn new(gl: GlGraphics, x: f64, y: f64, health: i32) -> Self {
         Game {
             gl,
             player: Player::new(x, y, health),
             score: 0,
-            collects: Box::new(vec![Some(Point::new(500., 700., 1, [1., 1., 1., 1.]))]),
-            ghosts: Box::new([
-                Some(Ghost::new(300., 300., 2., Color::Red)),
-                None,
-                None,
+            collects: Box::new(vec![
+                Some(T::new(500., 500., [1., 1., 1., 1.], PointType::Big)),
                 None,
             ]),
+            ghosts: Box::new([
+                Some(Ghost::new(750., 380., 2., Color::Red, (SCREEN_WIDTH, 0.))),
+                Some(Ghost::new(750., 380., 1., Color::Green, (0., 0.))),
+                Some(Ghost::new(750., 380., 2.2, Color::Purple, (0., SCREEN_HEIGHT))),
+                Some(Ghost::new(750., 380., 2.1, Color::Blue, (SCREEN_WIDTH, SCREEN_HEIGHT))),
+            ]),
             wall_gl: GlGraphics::new(OpenGL::V4_2),
-            walls: Box::new([
+            walls: /*Box::new([
                 Wall::new((40., 40.), 360., 60., [0., 0., 1., 1.]),
-                Wall::new((600., 200.), 60., 300., [0., 0., 1., 1.]),
-            ]), //glyph_cache: GlyphCache::new(),
+                Wall::new((600., 200.), 60., 300., [0., 0., 1., 1.]),])*/
+                builder::wall_builder::builder(),
+            //glyph_cache: GlyphCache::new(),
         }
     }
 
@@ -56,17 +71,33 @@ impl Game {
         for ghost in self.ghosts.iter_mut() {
             if let Some(g) = ghost {
                 for wall in self.walls.iter_mut() {
-                    if g.x + ENEMY_SIZE >= wall.x0
-                        && g.x <= wall.x1
-                        && g.y + ENEMY_SIZE >= wall.y0
-                        && g.y <= wall.y1
+                    if (g.x + ENEMY_SIZE >= wall.x0
+                        && g.direction == Direction::Right
+                        && g.y + ENEMY_SIZE < wall.y1
+                        && g.y > wall.y0
+                        && g.x <= wall.x1)
+                        || (g.x <= wall.x1
+                            && g.direction == Direction::Left
+                            && g.y + ENEMY_SIZE < wall.y1
+                            && g.y > wall.y0
+                            && g.y - ENEMY_SIZE >= wall.x0)
+                        || (g.y + ENEMY_SIZE >= wall.y0
+                            && g.direction == Direction::Down
+                            && g.x - ENEMY_SIZE >= wall.x0
+                            && g.x <= wall.x1
+                            && g.y <= wall.y1)
+                        || (g.y <= wall.y1
+                            && g.direction == Direction::Up
+                            && g.x - ENEMY_SIZE >= wall.x0
+                            && g.x <= wall.x1
+                            && g.y - ENEMY_SIZE >= wall.y0)
                     {
                         g.moving = false;
                         g.rethink();
-                        if (g.x + ENEMY_SIZE <= wall.x0 && g.direction != Direction::Right)
-                            || (g.x >= wall.x1 && g.direction != Direction::Left)
-                            || (g.y >= wall.y1 && g.direction != Direction::Up)
-                            || (g.y + ENEMY_SIZE <= wall.y0 && g.direction != Direction::Down)
+                        if (g.x + ENEMY_SIZE <= wall.x0 + 0.5 && g.direction != Direction::Right)
+                            || (g.x >= wall.x1 - 0.5 && g.direction != Direction::Left)
+                            || (g.y >= wall.y1 - 0.5 && g.direction != Direction::Up)
+                            || (g.y + ENEMY_SIZE <= wall.y0 + 0.5 && g.direction != Direction::Down)
                         {
                             g.moving = true;
                         }
@@ -78,12 +109,12 @@ impl Game {
 
         for point in self.collects.iter_mut() {
             if let Some(p) = point {
-                if p.x > self.player.x - p.size
-                    && p.x < self.player.x + PLAYER_SIZE
-                    && p.y > self.player.y - p.size
-                    && p.y < self.player.y + PLAYER_SIZE
+                if p.x() > self.player.x - p.size()
+                    && p.x() < self.player.x + PLAYER_SIZE
+                    && p.y() > self.player.y - p.size()
+                    && p.y() < self.player.y + PLAYER_SIZE
                 {
-                    self.score += p.worth;
+                    self.score += p.collect();
                     *point = None;
                 }
             }

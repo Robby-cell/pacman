@@ -9,6 +9,7 @@ use graphics::{
 use opengl_graphics::{GlGraphics, OpenGL, Texture, TextureSettings};
 use piston::RenderArgs;
 
+#[derive(Copy, Clone, Debug)]
 pub struct Wall {
     pub x0: f64,
     pub y0: f64,

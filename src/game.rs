@@ -32,7 +32,7 @@ where
     pub player: Player,
     pub score: i32,
     pub collects: Box<Vec<Option<T>>>,
-    pub ghosts: Box<[Option<Ghost>; 4]>,
+    pub ghosts: Box<[Option<Box<dyn Ghost>>; 4]>,
     wall_gl: GlGraphics,
     walls: Vec<Wall>,
     //glyph_cache: GlyphCache,
@@ -52,10 +52,10 @@ where
                 None,
             ]),
             ghosts: Box::new([
-                Some(Ghost::new(750., 380., 2., Color::Red, (SCREEN_WIDTH, 0.))),
-                Some(Ghost::new(750., 380., 1., Color::Green, (0., 0.))),
-                Some(Ghost::new(750., 380., 2.2, Color::Purple, (0., SCREEN_HEIGHT))),
-                Some(Ghost::new(750., 380., 2.1, Color::Blue, (SCREEN_WIDTH, SCREEN_HEIGHT))),
+                Some(Box::new(RedGhost::new(750., 380., 2., (SCREEN_WIDTH, 0.)))),
+                Some(Box::new(PurpleGhost::new(750., 380., 1., (0., 0.)))),
+                Some(Box::new(GreenGhost::new(750., 380., 2.2, (0., SCREEN_HEIGHT)))),
+                Some(Box::new(BlueGhost::new(750., 380., 2.1, (SCREEN_WIDTH, SCREEN_HEIGHT)))),
             ]),
             wall_gl: GlGraphics::new(OpenGL::V4_2),
             walls: /*Box::new([
@@ -71,35 +71,36 @@ where
         for ghost in self.ghosts.iter_mut() {
             if let Some(g) = ghost {
                 for wall in self.walls.iter_mut() {
-                    if (g.x + ENEMY_SIZE >= wall.x0
-                        && g.direction == Direction::Right
-                        && g.y + ENEMY_SIZE < wall.y1
-                        && g.y > wall.y0
-                        && g.x <= wall.x1)
-                        || (g.x <= wall.x1
-                            && g.direction == Direction::Left
-                            && g.y + ENEMY_SIZE < wall.y1
-                            && g.y > wall.y0
-                            && g.y - ENEMY_SIZE >= wall.x0)
-                        || (g.y + ENEMY_SIZE >= wall.y0
-                            && g.direction == Direction::Down
-                            && g.x - ENEMY_SIZE >= wall.x0
-                            && g.x <= wall.x1
-                            && g.y <= wall.y1)
-                        || (g.y <= wall.y1
-                            && g.direction == Direction::Up
-                            && g.x - ENEMY_SIZE >= wall.x0
-                            && g.x <= wall.x1
-                            && g.y - ENEMY_SIZE >= wall.y0)
+                    if (g.x() + ENEMY_SIZE >= wall.x0
+                        && g.direction() == Direction::Right
+                        && g.y() + ENEMY_SIZE < wall.y1
+                        && g.y() > wall.y0
+                        && g.x() <= wall.x1)
+                        || (g.x() <= wall.x1
+                            && g.direction() == Direction::Left
+                            && g.y() + ENEMY_SIZE < wall.y1
+                            && g.y() > wall.y0
+                            && g.y() - ENEMY_SIZE >= wall.x0)
+                        || (g.y() + ENEMY_SIZE >= wall.y0
+                            && g.direction() == Direction::Down
+                            && g.x() - ENEMY_SIZE >= wall.x0
+                            && g.x() <= wall.x1
+                            && g.y() <= wall.y1)
+                        || (g.y() <= wall.y1
+                            && g.direction() == Direction::Up
+                            && g.x() - ENEMY_SIZE >= wall.x0
+                            && g.x() <= wall.x1
+                            && g.y() - ENEMY_SIZE >= wall.y0)
                     {
-                        g.moving = false;
-                        g.rethink();
-                        if (g.x + ENEMY_SIZE <= wall.x0 + 0.5 && g.direction != Direction::Right)
-                            || (g.x >= wall.x1 - 0.5 && g.direction != Direction::Left)
-                            || (g.y >= wall.y1 - 0.5 && g.direction != Direction::Up)
-                            || (g.y + ENEMY_SIZE <= wall.y0 + 0.5 && g.direction != Direction::Down)
+                        g.set_moving(false);
+                        if (g.x() + ENEMY_SIZE <= wall.x0 + 0.5
+                            && g.direction() != Direction::Right)
+                            || (g.x() >= wall.x1 - 0.5 && g.direction() != Direction::Left)
+                            || (g.y() >= wall.y1 - 0.5 && g.direction() != Direction::Up)
+                            || (g.y() + ENEMY_SIZE <= wall.y0 + 0.5
+                                && g.direction() != Direction::Down)
                         {
-                            g.moving = true;
+                            g.set_moving(true);
                         }
                     }
                 }

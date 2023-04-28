@@ -20,29 +20,27 @@ pub enum Behave {
     Frightened,
 }
 
-pub mod behavior {
-    pub trait ChaseT {
-        fn chase(&mut self);
-    }
-
-    pub trait ScatterT {
-        fn scatter(&mut self);
-    }
-
-    pub trait FrightenedT {
-        fn frightened(&mut self);
-    }
+pub trait Behavior {
+    fn new_chase(&mut self);
+    fn new_scatter(&mut self);
+    fn new_frightened(&mut self);
+    fn move_to_target(&mut self);
+    fn chase(&mut self, px: f64, py: f64);
+    fn change(&mut self, new: Behave);
 }
 
-pub enum Color {
-    Red,
-    Blue,
-    Purple,
-    Green,
+pub trait Ghost: Behavior {
+    fn update(&mut self);
+    fn render(&mut self, args: &RenderArgs);
+    fn x(&self) -> f64;
+    fn y(&self) -> f64;
+    fn direction(&self) -> Direction;
+    fn moving(&self) -> bool;
+    fn set_moving(&mut self, moving: bool);
 }
 
 #[allow(unused)]
-pub struct Ghost {
+pub struct RedGhost {
     gl: GlGraphics,
     pub x: f64,
     pub y: f64,
@@ -53,16 +51,54 @@ pub struct Ghost {
     ghost_texture_right: Box<Texture>,
     ghost_texture_mid: Box<Texture>,
     ghost_texture_left: Box<Texture>,
-    target: (f64, f64),
+    default_target: (f64, f64),
 }
 
-trait AI {
-    fn new_speed(&mut self);
+pub struct PurpleGhost {
+    gl: GlGraphics,
+    pub x: f64,
+    pub y: f64,
+    speed: f64,
+    pub direction: Direction,
+    behave: Behave,
+    pub moving: bool,
+    ghost_texture_right: Box<Texture>,
+    ghost_texture_mid: Box<Texture>,
+    ghost_texture_left: Box<Texture>,
+    default_target: (f64, f64),
 }
 
-impl Ghost {
-    pub fn new(x: f64, y: f64, speed: f64, ghost_color: Color, target: (f64, f64)) -> Self {
-        Ghost {
+pub struct GreenGhost {
+    gl: GlGraphics,
+    pub x: f64,
+    pub y: f64,
+    speed: f64,
+    pub direction: Direction,
+    behave: Behave,
+    pub moving: bool,
+    ghost_texture_right: Box<Texture>,
+    ghost_texture_mid: Box<Texture>,
+    ghost_texture_left: Box<Texture>,
+    default_target: (f64, f64),
+}
+
+pub struct BlueGhost {
+    gl: GlGraphics,
+    pub x: f64,
+    pub y: f64,
+    speed: f64,
+    pub direction: Direction,
+    behave: Behave,
+    pub moving: bool,
+    ghost_texture_right: Box<Texture>,
+    ghost_texture_mid: Box<Texture>,
+    ghost_texture_left: Box<Texture>,
+    default_target: (f64, f64),
+}
+
+impl RedGhost {
+    pub fn new(x: f64, y: f64, speed: f64, default_target: (f64, f64)) -> Self {
+        RedGhost {
             gl: GlGraphics::new(OpenGL::V4_2),
             x,
             y,
@@ -70,109 +106,141 @@ impl Ghost {
             direction: Direction::Right,
             behave: Behave::Scatter,
             moving: true,
-            ghost_texture_right: match ghost_color {
-                Color::Red => Box::new(
-                    Texture::from_path(
-                        Path::new(".\\assets\\ghosts\\red-ghost-right.png"), // make these mid sprite
-                        &TextureSettings::new(),
-                    )
-                    .unwrap(),
-                ),
-                Color::Blue => Box::new(
-                    Texture::from_path(
-                        Path::new(".\\assets\\ghosts\\blue-ghost-right.png"),
-                        &TextureSettings::new(),
-                    )
-                    .unwrap(),
-                ),
-                Color::Green => Box::new(
-                    Texture::from_path(
-                        Path::new(".\\assets\\ghosts\\green-ghost-right.png"),
-                        &TextureSettings::new(),
-                    )
-                    .unwrap(),
-                ),
-                Color::Purple => Box::new(
-                    Texture::from_path(
-                        Path::new(".\\assets\\ghosts\\purple-ghost-right.png"),
-                        &TextureSettings::new(),
-                    )
-                    .unwrap(),
-                ),
-            },
-            ghost_texture_mid: match ghost_color {
-                Color::Red => Box::new(
-                    Texture::from_path(
-                        Path::new(".\\assets\\ghosts\\red-ghost-right.png"), // make these mid sprite
-                        &TextureSettings::new(),
-                    )
-                    .unwrap(),
-                ),
-                Color::Blue => Box::new(
-                    Texture::from_path(
-                        Path::new(".\\assets\\ghosts\\blue-ghost-right.png"),
-                        &TextureSettings::new(),
-                    )
-                    .unwrap(),
-                ),
-                Color::Green => Box::new(
-                    Texture::from_path(
-                        Path::new(".\\assets\\ghosts\\green-ghost-right.png"),
-                        &TextureSettings::new(),
-                    )
-                    .unwrap(),
-                ),
-                Color::Purple => Box::new(
-                    Texture::from_path(
-                        Path::new(".\\assets\\ghosts\\purple-ghost-right.png"),
-                        &TextureSettings::new(),
-                    )
-                    .unwrap(),
-                ),
-            },
-            ghost_texture_left: match ghost_color {
-                Color::Red => Box::new(
-                    Texture::from_path(
-                        Path::new(".\\assets\\ghosts\\red-ghost-left.png"), // make these mid sprite
-                        &TextureSettings::new(),
-                    )
-                    .unwrap(),
-                ),
-                Color::Blue => Box::new(
-                    Texture::from_path(
-                        Path::new(".\\assets\\ghosts\\blue-ghost-left.png"),
-                        &TextureSettings::new(),
-                    )
-                    .unwrap(),
-                ),
-                Color::Green => Box::new(
-                    Texture::from_path(
-                        Path::new(".\\assets\\ghosts\\green-ghost-left.png"),
-                        &TextureSettings::new(),
-                    )
-                    .unwrap(),
-                ),
-                Color::Purple => Box::new(
-                    Texture::from_path(
-                        Path::new(".\\assets\\ghosts\\purple-ghost-left.png"),
-                        &TextureSettings::new(),
-                    )
-                    .unwrap(),
-                ),
-            },
-            target,
+            ghost_texture_right: Box::new(
+                Texture::from_path(
+                    Path::new(".\\assets\\ghosts\\red-ghost-right.png"), // make these mid sprite
+                    &TextureSettings::new(),
+                )
+                .unwrap(),
+            ),
+            ghost_texture_mid: Box::new(
+                Texture::from_path(
+                    Path::new(".\\assets\\ghosts\\red-ghost-right.png"), // make these mid sprite
+                    &TextureSettings::new(),
+                )
+                .unwrap(),
+            ),
+            ghost_texture_left: Box::new(
+                Texture::from_path(
+                    Path::new(".\\assets\\ghosts\\red-ghost-left.png"), // make these mid sprite
+                    &TextureSettings::new(),
+                )
+                .unwrap(),
+            ),
+            default_target,
         }
     }
-
-    pub fn rethink(&mut self) {
-        self.direction = Direction::randomize();
+}
+impl PurpleGhost {
+    pub fn new(x: f64, y: f64, speed: f64, default_target: (f64, f64)) -> Self {
+        PurpleGhost {
+            gl: GlGraphics::new(OpenGL::V4_2),
+            x,
+            y,
+            speed,
+            direction: Direction::Right,
+            behave: Behave::Scatter,
+            moving: true,
+            ghost_texture_right: Box::new(
+                Texture::from_path(
+                    Path::new(".\\assets\\ghosts\\purple-ghost-right.png"), // make these mid sprite
+                    &TextureSettings::new(),
+                )
+                .unwrap(),
+            ),
+            ghost_texture_mid: Box::new(
+                Texture::from_path(
+                    Path::new(".\\assets\\ghosts\\purple-ghost-right.png"), // make these mid sprite
+                    &TextureSettings::new(),
+                )
+                .unwrap(),
+            ),
+            ghost_texture_left: Box::new(
+                Texture::from_path(
+                    Path::new(".\\assets\\ghosts\\purple-ghost-left.png"), // make these mid sprite
+                    &TextureSettings::new(),
+                )
+                .unwrap(),
+            ),
+            default_target,
+        }
     }
-
-    pub fn update(&mut self) {
-        self.move_o();
+}
+impl GreenGhost {
+    pub fn new(x: f64, y: f64, speed: f64, default_target: (f64, f64)) -> Self {
+        GreenGhost {
+            gl: GlGraphics::new(OpenGL::V4_2),
+            x,
+            y,
+            speed,
+            direction: Direction::Right,
+            behave: Behave::Scatter,
+            moving: true,
+            ghost_texture_right: Box::new(
+                Texture::from_path(
+                    Path::new(".\\assets\\ghosts\\green-ghost-right.png"), // make these mid sprite
+                    &TextureSettings::new(),
+                )
+                .unwrap(),
+            ),
+            ghost_texture_mid: Box::new(
+                Texture::from_path(
+                    Path::new(".\\assets\\ghosts\\green-ghost-right.png"), // make these mid sprite
+                    &TextureSettings::new(),
+                )
+                .unwrap(),
+            ),
+            ghost_texture_left: Box::new(
+                Texture::from_path(
+                    Path::new(".\\assets\\ghosts\\green-ghost-left.png"), // make these mid sprite
+                    &TextureSettings::new(),
+                )
+                .unwrap(),
+            ),
+            default_target,
+        }
     }
+}
+impl BlueGhost {
+    pub fn new(x: f64, y: f64, speed: f64, default_target: (f64, f64)) -> Self {
+        BlueGhost {
+            gl: GlGraphics::new(OpenGL::V4_2),
+            x,
+            y,
+            speed,
+            direction: Direction::Right,
+            behave: Behave::Scatter,
+            moving: true,
+            ghost_texture_right: Box::new(
+                Texture::from_path(
+                    Path::new(".\\assets\\ghosts\\blue-ghost-right.png"), // make these mid sprite
+                    &TextureSettings::new(),
+                )
+                .unwrap(),
+            ),
+            ghost_texture_mid: Box::new(
+                Texture::from_path(
+                    Path::new(".\\assets\\ghosts\\blue-ghost-right.png"), // make these mid sprite
+                    &TextureSettings::new(),
+                )
+                .unwrap(),
+            ),
+            ghost_texture_left: Box::new(
+                Texture::from_path(
+                    Path::new(".\\assets\\ghosts\\blue-ghost-left.png"), // make these mid sprite
+                    &TextureSettings::new(),
+                )
+                .unwrap(),
+            ),
+            default_target,
+        }
+    }
+}
 
-    pub fn render(&mut self, args: &RenderArgs) {
+impl Ghost for RedGhost {
+    fn update(&mut self) {}
+
+    fn render(&mut self, args: &RenderArgs) {
         self.gl.draw(args.viewport(), |context, gl| {
             Image::new().rect(square(self.x, self.y, ENEMY_SIZE)).draw(
                 match self.direction {
@@ -187,46 +255,161 @@ impl Ghost {
         })
     }
 
-    pub fn behavior_change(&mut self, new: Behave) {
-        self.direction.reverse_direction();
-        self.behave = new;
+    fn x(&self) -> f64 {
+        self.x
+    }
+    fn y(&self) -> f64 {
+        self.y
+    }
+    fn direction(&self) -> Direction {
+        self.direction
+    }
+    fn moving(&self) -> bool {
+        self.moving
+    }
+    fn set_moving(&mut self, moving: bool) {
+        self.moving = moving;
     }
 }
 
-impl Moveable for Ghost {
-    fn move_o(&mut self) {
-        if self.moving {
-            match self.direction {
-                Direction::Up => self.y -= self.speed,
-                Direction::Down => self.y += self.speed,
-                Direction::Right => self.x += self.speed,
-                Direction::Left => self.x -= self.speed,
-            }
-        }
+impl Ghost for PurpleGhost {
+    fn update(&mut self) {}
+
+    fn render(&mut self, args: &RenderArgs) {
+        self.gl.draw(args.viewport(), |context, gl| {
+            Image::new().rect(square(self.x, self.y, ENEMY_SIZE)).draw(
+                match self.direction {
+                    Left => &*self.ghost_texture_left,
+                    Right => &*self.ghost_texture_right,
+                    _ => &*self.ghost_texture_mid,
+                },
+                &DrawState::default(),
+                context.transform,
+                gl,
+            )
+        })
     }
 
-    fn move_e(&mut self, corner: &Corner, px: f64, py: f64) {
-        match self.behave {
-            Behave::Scatter => (),
-            Behave::Chase => (),
-            Behave::Frightened => (),
-        }
+    fn x(&self) -> f64 {
+        self.x
+    }
+    fn y(&self) -> f64 {
+        self.y
+    }
+    fn direction(&self) -> Direction {
+        self.direction
+    }
+    fn moving(&self) -> bool {
+        self.moving
+    }
+    fn set_moving(&mut self, moving: bool) {
+        self.moving = moving;
     }
 }
 
-impl AI for Ghost {
-    fn new_speed(&mut self) {
-        match self.direction {
-            Direction::Up => self.y -= self.speed * speed_mult(5),
-            Direction::Down => self.y += self.speed * speed_mult(5),
-            Direction::Right => self.x += self.speed * speed_mult(5),
-            Direction::Left => self.x -= self.speed * speed_mult(5),
-        }
+impl Ghost for GreenGhost {
+    fn update(&mut self) {}
+
+    fn render(&mut self, args: &RenderArgs) {
+        self.gl.draw(args.viewport(), |context, gl| {
+            Image::new().rect(square(self.x, self.y, ENEMY_SIZE)).draw(
+                match self.direction {
+                    Left => &*self.ghost_texture_left,
+                    Right => &*self.ghost_texture_right,
+                    _ => &*self.ghost_texture_mid,
+                },
+                &DrawState::default(),
+                context.transform,
+                gl,
+            )
+        })
+    }
+
+    fn x(&self) -> f64 {
+        self.x
+    }
+    fn y(&self) -> f64 {
+        self.y
+    }
+    fn direction(&self) -> Direction {
+        self.direction
+    }
+    fn moving(&self) -> bool {
+        self.moving
+    }
+    fn set_moving(&mut self, moving: bool) {
+        self.moving = moving;
     }
 }
 
-fn speed_mult(factor: i32) -> f64 {
-    thread_rng().gen_range(1..=factor) as f64
+impl Ghost for BlueGhost {
+    fn update(&mut self) {}
+
+    fn render(&mut self, args: &RenderArgs) {
+        self.gl.draw(args.viewport(), |context, gl| {
+            Image::new().rect(square(self.x, self.y, ENEMY_SIZE)).draw(
+                match self.direction {
+                    Left => &*self.ghost_texture_left,
+                    Right => &*self.ghost_texture_right,
+                    _ => &*self.ghost_texture_mid,
+                },
+                &DrawState::default(),
+                context.transform,
+                gl,
+            )
+        })
+    }
+
+    fn x(&self) -> f64 {
+        self.x
+    }
+    fn y(&self) -> f64 {
+        self.y
+    }
+    fn direction(&self) -> Direction {
+        self.direction
+    }
+    fn moving(&self) -> bool {
+        self.moving
+    }
+    fn set_moving(&mut self, moving: bool) {
+        self.moving = moving;
+    }
+}
+
+impl Behavior for RedGhost {
+    fn change(&mut self, new: Behave) {}
+    fn chase(&mut self, px: f64, py: f64) {}
+    fn move_to_target(&mut self) {}
+    fn new_chase(&mut self) {}
+    fn new_frightened(&mut self) {}
+    fn new_scatter(&mut self) {}
+}
+
+impl Behavior for PurpleGhost {
+    fn change(&mut self, new: Behave) {}
+    fn chase(&mut self, px: f64, py: f64) {}
+    fn move_to_target(&mut self) {}
+    fn new_chase(&mut self) {}
+    fn new_frightened(&mut self) {}
+    fn new_scatter(&mut self) {}
+}
+
+impl Behavior for GreenGhost {
+    fn change(&mut self, new: Behave) {}
+    fn chase(&mut self, px: f64, py: f64) {}
+    fn move_to_target(&mut self) {}
+    fn new_chase(&mut self) {}
+    fn new_frightened(&mut self) {}
+    fn new_scatter(&mut self) {}
+}
+impl Behavior for BlueGhost {
+    fn change(&mut self, new: Behave) {}
+    fn chase(&mut self, px: f64, py: f64) {}
+    fn move_to_target(&mut self) {}
+    fn new_chase(&mut self) {}
+    fn new_frightened(&mut self) {}
+    fn new_scatter(&mut self) {}
 }
 
 /*
@@ -252,26 +435,3 @@ pub trait Clyde {
     fn move_e(&mut self, corner: &Corner, px: f64, py: f64);
 }
 */
-
-impl Blinky for Ghost {
-    fn retarget_b(&mut self, px: f64, py: f64) {
-        match self.behave {
-            Behave::Chase => self.target = (px, py),
-            Behave::Frightened => (),
-            Behave::Scatter => self.target = (SCREEN_WIDTH, 0.),
-        }
-    }
-
-    fn move_b(&mut self, corner: &Option<Corner>) {
-        if let Some(c) = corner {
-            self.direction = pick_random_direction(&c.directions);
-        }
-
-        match self.direction {
-            Direction::Up => self.y -= self.speed,
-            Direction::Down => self.y += self.speed,
-            Direction::Right => self.x += self.speed,
-            Direction::Left => self.x -= self.speed,
-        }
-    }
-}

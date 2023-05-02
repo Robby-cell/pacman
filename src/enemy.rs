@@ -110,21 +110,21 @@ impl RedGhost {
             moving: true,
             ghost_texture_right: Box::new(
                 Texture::from_path(
-                    Path::new(".\\assets\\ghosts\\red-ghost-right.png"), // make these mid sprite
+                    Path::new("./assets/ghosts/red-ghost-right.png"), // make these mid sprite
                     &TextureSettings::new(),
                 )
                 .unwrap(),
             ),
             ghost_texture_mid: Box::new(
                 Texture::from_path(
-                    Path::new(".\\assets\\ghosts\\red-ghost-right.png"), // make these mid sprite
+                    Path::new("./assets/ghosts/red-ghost-right.png"), // make these mid sprite
                     &TextureSettings::new(),
                 )
                 .unwrap(),
             ),
             ghost_texture_left: Box::new(
                 Texture::from_path(
-                    Path::new(".\\assets\\ghosts\\red-ghost-left.png"), // make these mid sprite
+                    Path::new("./assets/ghosts/red-ghost-left.png"), // make these mid sprite
                     &TextureSettings::new(),
                 )
                 .unwrap(),
@@ -145,21 +145,21 @@ impl PurpleGhost {
             moving: true,
             ghost_texture_right: Box::new(
                 Texture::from_path(
-                    Path::new(".\\assets\\ghosts\\purple-ghost-right.png"), // make these mid sprite
+                    Path::new("./assets/ghosts/purple-ghost-right.png"), // make these mid sprite
                     &TextureSettings::new(),
                 )
                 .unwrap(),
             ),
             ghost_texture_mid: Box::new(
                 Texture::from_path(
-                    Path::new(".\\assets\\ghosts\\purple-ghost-right.png"), // make these mid sprite
+                    Path::new("./assets/ghosts/purple-ghost-right.png"), // make these mid sprite
                     &TextureSettings::new(),
                 )
                 .unwrap(),
             ),
             ghost_texture_left: Box::new(
                 Texture::from_path(
-                    Path::new(".\\assets\\ghosts\\purple-ghost-left.png"), // make these mid sprite
+                    Path::new("./assets/ghosts/purple-ghost-left.png"), // make these mid sprite
                     &TextureSettings::new(),
                 )
                 .unwrap(),
@@ -180,21 +180,21 @@ impl GreenGhost {
             moving: true,
             ghost_texture_right: Box::new(
                 Texture::from_path(
-                    Path::new(".\\assets\\ghosts\\green-ghost-right.png"), // make these mid sprite
+                    Path::new("./assets/ghosts/green-ghost-right.png"), // make these mid sprite
                     &TextureSettings::new(),
                 )
                 .unwrap(),
             ),
             ghost_texture_mid: Box::new(
                 Texture::from_path(
-                    Path::new(".\\assets\\ghosts\\green-ghost-right.png"), // make these mid sprite
+                    Path::new("./assets/ghosts/green-ghost-right.png"), // make these mid sprite
                     &TextureSettings::new(),
                 )
                 .unwrap(),
             ),
             ghost_texture_left: Box::new(
                 Texture::from_path(
-                    Path::new(".\\assets\\ghosts\\green-ghost-left.png"), // make these mid sprite
+                    Path::new("./assets/ghosts/green-ghost-left.png"), // make these mid sprite
                     &TextureSettings::new(),
                 )
                 .unwrap(),
@@ -215,21 +215,21 @@ impl BlueGhost {
             moving: true,
             ghost_texture_right: Box::new(
                 Texture::from_path(
-                    Path::new(".\\assets\\ghosts\\blue-ghost-right.png"), // make these mid sprite
+                    Path::new("./assets/ghosts/blue-ghost-right.png"), // make these mid sprite
                     &TextureSettings::new(),
                 )
                 .unwrap(),
             ),
             ghost_texture_mid: Box::new(
                 Texture::from_path(
-                    Path::new(".\\assets\\ghosts\\blue-ghost-right.png"), // make these mid sprite
+                    Path::new("./assets/ghosts/blue-ghost-right.png"), // make these mid sprite
                     &TextureSettings::new(),
                 )
                 .unwrap(),
             ),
             ghost_texture_left: Box::new(
                 Texture::from_path(
-                    Path::new(".\\assets\\ghosts\\blue-ghost-left.png"), // make these mid sprite
+                    Path::new("./assets/ghosts/blue-ghost-left.png"), // make these mid sprite
                     &TextureSettings::new(),
                 )
                 .unwrap(),
@@ -240,7 +240,16 @@ impl BlueGhost {
 }
 
 impl Ghost for RedGhost {
-    fn update(&mut self) {}
+    fn update(&mut self) {
+        if self.moving {
+            match self.direction {
+                Direction::Up => self.y -= self.speed,
+                Direction::Down => self.y += self.speed,
+                Direction::Right => self.x += self.speed,
+                Direction::Left => self.x -= self.speed,
+            }
+        }
+    }
 
     fn render(&mut self, args: &RenderArgs) {
         self.gl.draw(args.viewport(), |context, gl| {
@@ -275,7 +284,16 @@ impl Ghost for RedGhost {
 }
 
 impl Ghost for PurpleGhost {
-    fn update(&mut self) {}
+    fn update(&mut self) {
+        if self.moving {
+            match self.direction {
+                Direction::Up => self.y -= self.speed,
+                Direction::Down => self.y += self.speed,
+                Direction::Right => self.x += self.speed,
+                Direction::Left => self.x -= self.speed,
+            }
+        }
+    }
 
     fn render(&mut self, args: &RenderArgs) {
         self.gl.draw(args.viewport(), |context, gl| {
@@ -310,7 +328,16 @@ impl Ghost for PurpleGhost {
 }
 
 impl Ghost for GreenGhost {
-    fn update(&mut self) {}
+    fn update(&mut self) {
+        if self.moving {
+            match self.direction {
+                Direction::Up => self.y -= self.speed,
+                Direction::Down => self.y += self.speed,
+                Direction::Right => self.x += self.speed,
+                Direction::Left => self.x -= self.speed,
+            }
+        }
+    }
 
     fn render(&mut self, args: &RenderArgs) {
         self.gl.draw(args.viewport(), |context, gl| {
@@ -345,7 +372,16 @@ impl Ghost for GreenGhost {
 }
 
 impl Ghost for BlueGhost {
-    fn update(&mut self) {}
+    fn update(&mut self) {
+        if self.moving {
+            match self.direction {
+                Direction::Up => self.y -= self.speed,
+                Direction::Down => self.y += self.speed,
+                Direction::Right => self.x += self.speed,
+                Direction::Left => self.x -= self.speed,
+            }
+        }
+    }
 
     fn render(&mut self, args: &RenderArgs) {
         self.gl.draw(args.viewport(), |context, gl| {

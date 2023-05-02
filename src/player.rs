@@ -59,21 +59,21 @@ impl Player {
             health,
             closed: Box::new(
                 Texture::from_path(
-                    Path::new(".\\assets\\pacman\\closed.png"),
+                    Path::new("./assets/pacman/closed.png"),
                     &TextureSettings::new(),
                 )
                 .unwrap(),
             ),
             half: Box::new(
                 Texture::from_path(
-                    Path::new(".\\assets\\pacman\\half.png"),
+                    Path::new("./assets/pacman/half.png"),
                     &TextureSettings::new(),
                 )
                 .unwrap(),
             ),
             open: Box::new(
                 Texture::from_path(
-                    Path::new(".\\assets\\pacman\\open.png"),
+                    Path::new("./assets/pacman/open.png"),
                     &TextureSettings::new(),
                 )
                 .unwrap(),

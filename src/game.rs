@@ -10,8 +10,6 @@ use piston::input::{Button, RenderArgs};
 
 use crate::enemy::*;
 use crate::map::Wall;
-use crate::player;
-use crate::point;
 use crate::point::PointType;
 use crate::utilities::Collectible;
 use crate::utilities::Direction;

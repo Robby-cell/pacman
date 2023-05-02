@@ -33,18 +33,20 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
 
     let mut game = Box::new(Game::<Point>::new(GlGraphics::new(opengl), 500., 500., 3));
     let mut events = Events::new(EventSettings::new()).ups(60);
-    let mut startscreen = Some(StartScreen::new(OpenGL::V4_2));
+    let mut startscreen = StartScreen::new(OpenGL::V4_2);
 
     while let Some(e) = events.next(&mut window) {
         if let Some(r) = e.render_args() {
             match state {
                 State::StartScreen => {
                     game.render(&r);
+
+                    startscreen.render(&r);
                     ()
                 }
                 State::Play => {
-                    game.render(&r);
                     game.update();
+                    game.render(&r);
                 }
                 State::Menu => {
                     todo!("add menu state")
@@ -57,10 +59,7 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
                 State::StartScreen => match &k.button {
                     &Button::Mouse(_) => (),
                     _ => {
-                        state = {
-                            startscreen = None;
-                            State::Play
-                        }
+                        state = State::Play;
                     }
                 },
                 State::Play => {

@@ -24,7 +24,7 @@ pub trait Behavior {
     fn new_chase(&mut self);
     fn new_scatter(&mut self);
     fn new_frightened(&mut self);
-    fn move_to_target(&mut self);
+    fn basic_movement(&mut self);
     fn chase(&mut self, px: f64, py: f64);
     fn change(&mut self, new: Behave);
 }
@@ -53,6 +53,7 @@ pub struct RedGhost {
     ghost_texture_right: Box<Texture>,
     ghost_texture_mid: Box<Texture>,
     ghost_texture_left: Box<Texture>,
+    target: (f64, f64),
     default_target: (f64, f64),
 }
 
@@ -67,6 +68,7 @@ pub struct PurpleGhost {
     ghost_texture_right: Box<Texture>,
     ghost_texture_mid: Box<Texture>,
     ghost_texture_left: Box<Texture>,
+    target: (f64, f64),
     default_target: (f64, f64),
 }
 
@@ -81,6 +83,7 @@ pub struct GreenGhost {
     ghost_texture_right: Box<Texture>,
     ghost_texture_mid: Box<Texture>,
     ghost_texture_left: Box<Texture>,
+    target: (f64, f64),
     default_target: (f64, f64),
 }
 
@@ -95,6 +98,7 @@ pub struct BlueGhost {
     ghost_texture_right: Box<Texture>,
     ghost_texture_mid: Box<Texture>,
     ghost_texture_left: Box<Texture>,
+    target: (f64, f64),
     default_target: (f64, f64),
 }
 
@@ -129,6 +133,7 @@ impl RedGhost {
                 )
                 .unwrap(),
             ),
+            target: default_target,
             default_target,
         }
     }
@@ -164,6 +169,7 @@ impl PurpleGhost {
                 )
                 .unwrap(),
             ),
+            target: default_target,
             default_target,
         }
     }
@@ -199,6 +205,7 @@ impl GreenGhost {
                 )
                 .unwrap(),
             ),
+            target: default_target,
             default_target,
         }
     }
@@ -234,6 +241,7 @@ impl BlueGhost {
                 )
                 .unwrap(),
             ),
+            target: default_target,
             default_target,
         }
     }
@@ -242,12 +250,13 @@ impl BlueGhost {
 impl Ghost for RedGhost {
     fn update(&mut self) {
         if self.moving {
-            match self.direction {
-                Direction::Up => self.y -= self.speed,
-                Direction::Down => self.y += self.speed,
-                Direction::Right => self.x += self.speed,
-                Direction::Left => self.x -= self.speed,
-            }
+            self.basic_movement();
+        }
+
+        match self.behave {
+            Behave::Chase => self.new_chase(),
+            Behave::Frightened => self.new_frightened(),
+            Behave::Scatter => self.new_scatter(),
         }
     }
 
@@ -286,12 +295,13 @@ impl Ghost for RedGhost {
 impl Ghost for PurpleGhost {
     fn update(&mut self) {
         if self.moving {
-            match self.direction {
-                Direction::Up => self.y -= self.speed,
-                Direction::Down => self.y += self.speed,
-                Direction::Right => self.x += self.speed,
-                Direction::Left => self.x -= self.speed,
-            }
+            self.basic_movement();
+        }
+
+        match self.behave {
+            Behave::Chase => self.new_chase(),
+            Behave::Frightened => self.new_frightened(),
+            Behave::Scatter => self.new_scatter(),
         }
     }
 
@@ -330,12 +340,12 @@ impl Ghost for PurpleGhost {
 impl Ghost for GreenGhost {
     fn update(&mut self) {
         if self.moving {
-            match self.direction {
-                Direction::Up => self.y -= self.speed,
-                Direction::Down => self.y += self.speed,
-                Direction::Right => self.x += self.speed,
-                Direction::Left => self.x -= self.speed,
-            }
+            self.basic_movement();
+        }
+        match self.behave {
+            Behave::Chase => self.new_chase(),
+            Behave::Frightened => self.new_frightened(),
+            Behave::Scatter => self.new_scatter(),
         }
     }
 
@@ -374,12 +384,13 @@ impl Ghost for GreenGhost {
 impl Ghost for BlueGhost {
     fn update(&mut self) {
         if self.moving {
-            match self.direction {
-                Direction::Up => self.y -= self.speed,
-                Direction::Down => self.y += self.speed,
-                Direction::Right => self.x += self.speed,
-                Direction::Left => self.x -= self.speed,
-            }
+            self.basic_movement();
+        }
+
+        match self.behave {
+            Behave::Chase => self.new_chase(),
+            Behave::Frightened => self.new_frightened(),
+            Behave::Scatter => self.new_scatter(),
         }
     }
 
@@ -416,35 +427,77 @@ impl Ghost for BlueGhost {
 }
 
 impl Behavior for RedGhost {
-    fn change(&mut self, new: Behave) {}
-    fn chase(&mut self, px: f64, py: f64) {}
-    fn move_to_target(&mut self) {}
+    fn change(&mut self, new: Behave) {
+        self.direction.reverse_direction();
+        self.behave = new
+    }
+    fn chase(&mut self, px: f64, py: f64) {
+
+    }
+    fn basic_movement(&mut self) {
+        match self.direction {
+            Direction::Up => self.y -= self.speed,
+            Direction::Down => self.y += self.speed,
+            Direction::Right => self.x += self.speed,
+            Direction::Left => self.x -= self.speed,
+        }
+    }
     fn new_chase(&mut self) {}
     fn new_frightened(&mut self) {}
     fn new_scatter(&mut self) {}
 }
 
 impl Behavior for PurpleGhost {
-    fn change(&mut self, new: Behave) {}
+    fn change(&mut self, new: Behave) {
+        self.direction.reverse_direction();
+        self.behave = new
+    }
     fn chase(&mut self, px: f64, py: f64) {}
-    fn move_to_target(&mut self) {}
+    fn basic_movement(&mut self) {
+        match self.direction {
+            Direction::Up => self.y -= self.speed,
+            Direction::Down => self.y += self.speed,
+            Direction::Right => self.x += self.speed,
+            Direction::Left => self.x -= self.speed,
+        }
+    }
     fn new_chase(&mut self) {}
     fn new_frightened(&mut self) {}
     fn new_scatter(&mut self) {}
 }
 
 impl Behavior for GreenGhost {
-    fn change(&mut self, new: Behave) {}
+    fn change(&mut self, new: Behave) {
+        self.direction.reverse_direction();
+        self.behave = new
+    }
     fn chase(&mut self, px: f64, py: f64) {}
-    fn move_to_target(&mut self) {}
+    fn basic_movement(&mut self) {
+        match self.direction {
+            Direction::Up => self.y -= self.speed,
+            Direction::Down => self.y += self.speed,
+            Direction::Right => self.x += self.speed,
+            Direction::Left => self.x -= self.speed,
+        }
+    }
     fn new_chase(&mut self) {}
     fn new_frightened(&mut self) {}
     fn new_scatter(&mut self) {}
 }
 impl Behavior for BlueGhost {
-    fn change(&mut self, new: Behave) {}
+    fn change(&mut self, new: Behave) {
+        self.direction.reverse_direction();
+        self.behave = new
+    }
     fn chase(&mut self, px: f64, py: f64) {}
-    fn move_to_target(&mut self) {}
+    fn basic_movement(&mut self) {
+        match self.direction {
+            Direction::Up => self.y -= self.speed,
+            Direction::Down => self.y += self.speed,
+            Direction::Right => self.x += self.speed,
+            Direction::Left => self.x -= self.speed,
+        }
+    }
     fn new_chase(&mut self) {}
     fn new_frightened(&mut self) {}
     fn new_scatter(&mut self) {}

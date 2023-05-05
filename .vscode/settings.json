@@ -19,5 +19,6 @@
         "titleBar.inactiveBackground": "#381f8099",
         "titleBar.inactiveForeground": "#e7e7e799"
     },
-    "peacock.color": "#381f80"
+    "peacock.color": "#381f80",
+    "vscord.app.privacyMode.enable": true
 }

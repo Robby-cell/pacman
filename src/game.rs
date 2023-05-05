@@ -22,6 +22,10 @@ use crate::player::*;
 use crate::utilities::SCREEN_HEIGHT;
 use crate::utilities::SCREEN_WIDTH;
 
+fn get_type<T>(_: &T) -> &str {
+    std::any::type_name::<T>()
+}
+
 pub struct Game<T>
 where
     T: Collectible,
@@ -66,8 +70,12 @@ where
 
     pub fn update(&mut self) {
         self.player.update();
+        let (mut rx, mut ry): (f64, f64) = (0., 0.);
         for ghost in self.ghosts.iter_mut() {
             if let Some(g) = ghost {
+                if "RedGhost" == get_type(&g) {
+                    (rx, ry) = (g.x(), g.y());
+                }
                 for wall in self.walls.iter_mut() {
                     if (g.x() + ENEMY_SIZE >= wall.x0
                         && g.direction() == Direction::Right
@@ -102,7 +110,7 @@ where
                         }
                     }
                 }
-                g.update();
+                g.update(self.player.x, self.player.y, &self.player.direction, &rx, &ry);
             }
         }
 

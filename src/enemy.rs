@@ -37,6 +37,7 @@ pub trait Ghost: Behavior {
     fn direction(&self) -> Direction;
     fn moving(&self) -> bool;
     fn set_moving(&mut self, moving: bool);
+    fn is_red(&self) -> bool;
 }
 
 // todo: struct for each color, remove color enum, and implement
@@ -290,6 +291,10 @@ impl Ghost for RedGhost {
     fn set_moving(&mut self, moving: bool) {
         self.moving = moving;
     }
+
+    fn is_red(&self) -> bool {
+        true
+    }
 }
 
 impl Ghost for PurpleGhost {
@@ -335,6 +340,10 @@ impl Ghost for PurpleGhost {
     fn set_moving(&mut self, moving: bool) {
         self.moving = moving;
     }
+
+    fn is_red(&self) -> bool {
+        false
+    }
 }
 
 impl Ghost for GreenGhost {
@@ -378,6 +387,10 @@ impl Ghost for GreenGhost {
     }
     fn set_moving(&mut self, moving: bool) {
         self.moving = moving;
+    }
+
+    fn is_red(&self) -> bool {
+        false
     }
 }
 
@@ -423,6 +436,10 @@ impl Ghost for BlueGhost {
     }
     fn set_moving(&mut self, moving: bool) {
         self.moving = moving;
+    }
+
+    fn is_red(&self) -> bool {
+        false
     }
 }
 

@@ -10,7 +10,7 @@ use crate::{
     utilities::{
         pick_random_direction, Blinky,
         Direction::{self, *},
-        Moveable, ENEMY_SIZE, GHOST_SPEED, SCREEN_WIDTH,
+        Moveable, ENEMY_SIZE, GHOST_SPEED, SCREEN_WIDTH, PLAYER_SIZE,
     },
 };
 
@@ -21,7 +21,7 @@ pub enum Behave {
 }
 
 pub trait Behavior {
-    fn new_chase(&mut self);
+    fn new_chase(&mut self, px: f64, py: f64, dir: &Direction, _redx: &f64, _redy: &f64);
     fn new_scatter(&mut self);
     fn new_frightened(&mut self);
     fn basic_movement(&mut self);
@@ -30,7 +30,7 @@ pub trait Behavior {
 }
 
 pub trait Ghost: Behavior {
-    fn update(&mut self);
+    fn update(&mut self, px: f64, py: f64, dir: &Direction, _redx: &f64, _redy: &f64);
     fn render(&mut self, args: &RenderArgs);
     fn x(&self) -> f64;
     fn y(&self) -> f64;
@@ -248,13 +248,13 @@ impl BlueGhost {
 }
 
 impl Ghost for RedGhost {
-    fn update(&mut self) {
+    fn update(&mut self, px: f64, py: f64, dir: &Direction, _redx: &f64, _redy: &f64) {
         if self.moving {
             self.basic_movement();
         }
 
         match self.behave {
-            Behave::Chase => self.new_chase(),
+            Behave::Chase => self.new_chase(px, py, dir, _redx, _redy),
             Behave::Frightened => self.new_frightened(),
             Behave::Scatter => self.new_scatter(),
         }
@@ -293,13 +293,13 @@ impl Ghost for RedGhost {
 }
 
 impl Ghost for PurpleGhost {
-    fn update(&mut self) {
+    fn update(&mut self, px: f64, py: f64, dir: &Direction, _redx: &f64, _redy: &f64) {
         if self.moving {
             self.basic_movement();
         }
 
         match self.behave {
-            Behave::Chase => self.new_chase(),
+            Behave::Chase => self.new_chase(px, py, dir, _redx, _redy),
             Behave::Frightened => self.new_frightened(),
             Behave::Scatter => self.new_scatter(),
         }
@@ -338,12 +338,12 @@ impl Ghost for PurpleGhost {
 }
 
 impl Ghost for GreenGhost {
-    fn update(&mut self) {
+    fn update(&mut self, px: f64, py: f64, dir: &Direction, _redx: &f64, _redy: &f64) {
         if self.moving {
             self.basic_movement();
         }
         match self.behave {
-            Behave::Chase => self.new_chase(),
+            Behave::Chase => self.new_chase(px, py, dir, _redx, _redy),
             Behave::Frightened => self.new_frightened(),
             Behave::Scatter => self.new_scatter(),
         }
@@ -382,13 +382,13 @@ impl Ghost for GreenGhost {
 }
 
 impl Ghost for BlueGhost {
-    fn update(&mut self) {
+    fn update(&mut self, px: f64, py: f64, dir: &Direction, _redx: &f64, _redy: &f64) {
         if self.moving {
             self.basic_movement();
         }
 
         match self.behave {
-            Behave::Chase => self.new_chase(),
+            Behave::Chase => self.new_chase(px, py, dir, _redx, _redy),
             Behave::Frightened => self.new_frightened(),
             Behave::Scatter => self.new_scatter(),
         }
@@ -442,7 +442,9 @@ impl Behavior for RedGhost {
             Direction::Left => self.x -= self.speed,
         }
     }
-    fn new_chase(&mut self) {}
+    fn new_chase(&mut self, px: f64, py: f64, dir: &Direction, _redx: &f64, _redy: &f64) {
+        self.target = (px, py)
+    }
     fn new_frightened(&mut self) {}
     fn new_scatter(&mut self) {}
 }
@@ -461,7 +463,15 @@ impl Behavior for PurpleGhost {
             Direction::Left => self.x -= self.speed,
         }
     }
-    fn new_chase(&mut self) {}
+    fn new_chase(&mut self, px: f64, py: f64, dir: &Direction, _redx: &f64, _redy: &f64) {
+        self.target = 
+            match dir {
+                &Direction::Left => (px - PLAYER_SIZE*4., py),
+                &Direction::Right => (px + PLAYER_SIZE*4., py),
+                &Direction::Up => (px - PLAYER_SIZE*4., py - PLAYER_SIZE*4.),
+                &Direction::Down => (px, py + PLAYER_SIZE*4.),
+            }
+    }
     fn new_frightened(&mut self) {}
     fn new_scatter(&mut self) {}
 }
@@ -480,7 +490,13 @@ impl Behavior for GreenGhost {
             Direction::Left => self.x -= self.speed,
         }
     }
-    fn new_chase(&mut self) {}
+    fn new_chase(&mut self, px: f64, py: f64, dir: &Direction, _redx: &f64, _redy: &f64) {
+        if (px + py).sqrt() > PLAYER_SIZE*8. {
+            self.target = (px, py)
+        } else {
+            self.target = self.default_target
+        }
+    }
     fn new_frightened(&mut self) {}
     fn new_scatter(&mut self) {}
 }
@@ -498,7 +514,16 @@ impl Behavior for BlueGhost {
             Direction::Left => self.x -= self.speed,
         }
     }
-    fn new_chase(&mut self) {}
+    fn new_chase(&mut self, px: f64, py: f64, dir: &Direction, _redx: &f64, _redy: &f64) {
+        let neutral = match dir {
+            &Direction::Left => (px - PLAYER_SIZE*2., py),
+            &Direction::Right => (px + PLAYER_SIZE*2., py),
+            &Direction::Up => (px - PLAYER_SIZE*2., py - PLAYER_SIZE*2.),
+            &Direction::Down => (px, py + PLAYER_SIZE*2.),
+        };
+
+        self.target = (neutral.0 - (_redx - neutral.0), neutral.1 - (_redy - neutral.1))
+    }
     fn new_frightened(&mut self) {}
     fn new_scatter(&mut self) {}
 }
@@ -506,11 +531,13 @@ impl Behavior for BlueGhost {
 /*
 // the aggressive ghost, aims for the player
 pub trait Blinky {
+    // red, top right
     fn move_e(&mut self, corner: &Corner, px: f64, py: f64);
 }
 
 // this one aims for 4 "squares" in front of the player
 pub trait Pinky {
+    // purple, top left
     fn move_e(&mut self, corner: &Corner, px: f64, py: f64);
 }
 
@@ -518,11 +545,13 @@ pub trait Pinky {
 // aims for;
 // vector from 2 "squares" in front of the player to Blinky rotated 180 deg
 pub trait Inky {
+    // blue, bottom right
     fn move_e(&mut self, corner: &Corner, px: f64, py: f64);
 }
 
 // this ghost is random and does his own thing
 pub trait Clyde {
+    // our green ghost, stays in bottom left
     fn move_e(&mut self, corner: &Corner, px: f64, py: f64);
 }
 */

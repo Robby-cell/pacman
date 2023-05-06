@@ -25,7 +25,7 @@ pub trait Behavior {
     fn new_scatter(&mut self);
     fn new_frightened(&mut self);
     fn basic_movement(&mut self);
-    fn chase(&mut self, px: f64, py: f64);
+    fn chase(&mut self, px: f64, py: f64, corner: &Corner);
     fn change(&mut self, new: Behave);
 }
 
@@ -448,8 +448,8 @@ impl Behavior for RedGhost {
         self.direction.reverse_direction();
         self.behave = new
     }
-    fn chase(&mut self, px: f64, py: f64) {
-
+    fn chase(&mut self, px: f64, py: f64, corner: &Corner) {
+        self.direction = corner.next_dir(&px, &py, &self.x, &self.y, &self.direction)
     }
     fn basic_movement(&mut self) {
         match self.direction {
@@ -471,7 +471,7 @@ impl Behavior for PurpleGhost {
         self.direction.reverse_direction();
         self.behave = new
     }
-    fn chase(&mut self, px: f64, py: f64) {}
+    fn chase(&mut self, px: f64, py: f64, corner: &Corner) {}
     fn basic_movement(&mut self) {
         match self.direction {
             Direction::Up => self.y -= self.speed,
@@ -498,7 +498,7 @@ impl Behavior for GreenGhost {
         self.direction.reverse_direction();
         self.behave = new
     }
-    fn chase(&mut self, px: f64, py: f64) {}
+    fn chase(&mut self, px: f64, py: f64, corner: &Corner) {}
     fn basic_movement(&mut self) {
         match self.direction {
             Direction::Up => self.y -= self.speed,
@@ -522,7 +522,7 @@ impl Behavior for BlueGhost {
         self.direction.reverse_direction();
         self.behave = new
     }
-    fn chase(&mut self, px: f64, py: f64) {}
+    fn chase(&mut self, px: f64, py: f64, corner: &Corner) {}
     fn basic_movement(&mut self) {
         match self.direction {
             Direction::Up => self.y -= self.speed,

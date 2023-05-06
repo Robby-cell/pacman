@@ -12,4 +12,24 @@ impl Corner {
     pub fn new(x: f64, y: f64, directions: Box<[Direction]>) -> Self {
         Self { x, y, directions }
     }
+
+    pub fn next_dir(&self, playerx: &f64, playery: &f64, ghostx: &f64, ghosty: &f64, to_avoid: &Direction) -> Direction {
+        for &dir in self.directions.iter() {
+            match dir {
+                Direction::Up => {
+                    if playery < ghosty && dir != to_avoid.reversed() { return Direction::Up; }
+                }
+                Direction::Down => {
+                    if playery > ghosty && dir != to_avoid.reversed() { return Direction::Down; }
+                }
+                Direction::Left => {
+                    if playerx < ghostx && dir != to_avoid.reversed() { return Direction::Left; }
+                }
+                Direction::Right => {
+                    if playerx > ghostx && dir != to_avoid.reversed() { return Direction::Right; }
+                }
+            }
+        }
+        self.directions[0]
+    }
 }

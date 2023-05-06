@@ -1,24 +1,23 @@
 {
-    "rust-analyzer.showUnlinkedFileNotification": false,
-    "workbench.colorCustomizations": {
-        "activityBar.activeBackground": "#4a29a9",
-        "activityBar.background": "#4a29a9",
-        "activityBar.foreground": "#e7e7e7",
-        "activityBar.inactiveForeground": "#e7e7e799",
-        "activityBarBadge.background": "#000000",
-        "activityBarBadge.foreground": "#e7e7e7",
-        "commandCenter.border": "#e7e7e799",
-        "sash.hoverBorder": "#4a29a9",
-        "statusBar.background": "#381f80",
-        "statusBar.foreground": "#e7e7e7",
-        "statusBarItem.hoverBackground": "#4a29a9",
-        "statusBarItem.remoteBackground": "#381f80",
-        "statusBarItem.remoteForeground": "#e7e7e7",
-        "titleBar.activeBackground": "#381f80",
-        "titleBar.activeForeground": "#e7e7e7",
-        "titleBar.inactiveBackground": "#381f8099",
-        "titleBar.inactiveForeground": "#e7e7e799"
-    },
-    "peacock.color": "#381f80",
-    "vscord.app.privacyMode.enable": true
+  "rust-analyzer.showUnlinkedFileNotification": false,
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#4a29a9",
+    "activityBar.background": "#4a29a9",
+    "activityBar.foreground": "#e7e7e7",
+    "activityBar.inactiveForeground": "#e7e7e799",
+    "activityBarBadge.background": "#000000",
+    "activityBarBadge.foreground": "#e7e7e7",
+    "commandCenter.border": "#e7e7e799",
+    "sash.hoverBorder": "#4a29a9",
+    "statusBar.background": "#381f80",
+    "statusBar.foreground": "#e7e7e7",
+    "statusBarItem.hoverBackground": "#4a29a9",
+    "statusBarItem.remoteBackground": "#381f80",
+    "statusBarItem.remoteForeground": "#e7e7e7",
+    "titleBar.activeBackground": "#381f80",
+    "titleBar.activeForeground": "#e7e7e7",
+    "titleBar.inactiveBackground": "#381f8099",
+    "titleBar.inactiveForeground": "#e7e7e799"
+  },
+  "peacock.color": "#381f80"
 }

@@ -71,6 +71,15 @@ impl Direction {
         }
     }
 
+    pub fn reversed(&self) -> Self {
+        match self {
+            Direction::Up => Direction::Down,
+            Direction::Right => Direction::Left,
+            Direction::Down => Direction::Up,
+            Direction::Left => Direction::Right,
+        }
+    }
+
     pub fn randomize() -> Self {
         match rand::thread_rng().gen_range(0..=3) {
             0 => Direction::Up,

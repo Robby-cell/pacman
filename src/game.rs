@@ -65,14 +65,13 @@ where
     }
 
     pub fn update(&mut self) {
-        self.player.update();
         let (mut rx, mut ry): (f64, f64) = (0., 0.);
         for ghost in self.ghosts.iter_mut() {
             if let Some(g) = ghost {
                 if g.is_red() {
                     (rx, ry) = (g.x(), g.y());
                 }
-                for wall in self.walls.iter_mut() {
+                for wall in self.walls.iter() {
                     if (g.x() + ENEMY_SIZE >= wall.x0
                         && g.direction() == Direction::Right
                         && g.y() + ENEMY_SIZE < wall.y1
@@ -114,6 +113,37 @@ where
                     &ry,
                 );
             }
+        }
+
+        let mut moveplayer = true;
+        for &wall in self.walls.iter() {
+            if (self.player.x > wall.x0 - PLAYER_SIZE
+                && self.player.x < wall.x0 + 10. - PLAYER_SIZE
+                && self.player.y > wall.y0 - PLAYER_SIZE
+                && self.player.y < wall.y1
+                && self.player.direction == Direction::Right)
+                || (self.player.x < wall.x1
+                    && self.player.x > wall.x1 - 10.
+                    && self.player.y > wall.y0 - PLAYER_SIZE
+                    && self.player.y < wall.y1
+                    && self.player.direction == Direction::Left)
+                || (self.player.y > wall.y0 - PLAYER_SIZE
+                    && self.player.y < wall.y0 + 10. - PLAYER_SIZE
+                    && self.player.x > wall.x0 - PLAYER_SIZE
+                    && self.player.x < wall.x1
+                    && self.player.direction == Direction::Down)
+                || (self.player.y < wall.y1
+                    && self.player.y > wall.y1 - 10.
+                    && self.player.x > wall.x0 - PLAYER_SIZE
+                    && self.player.x < wall.x1
+                    && self.player.direction == Direction::Up)
+            {
+                moveplayer = false;
+                break;
+            }
+        }
+        if moveplayer {
+            self.player.update();
         }
 
         for point in self.collects.iter_mut() {

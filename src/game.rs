@@ -1,3 +1,8 @@
+// todo -
+//          add a queue for the next direction, so if
+//          player hits left while traveling up, pacman will go
+//          left when the next available left turn can be made
+
 use std::vec;
 
 use graphics::glyph_cache::rusttype::GlyphCache;
@@ -117,25 +122,25 @@ where
 
         let mut moveplayer = true;
         for &wall in self.walls.iter() {
-            if (self.player.x > wall.x0 - PLAYER_SIZE
+            if (self.player.x >= wall.x0 - PLAYER_SIZE
                 && self.player.x < wall.x0 + 10. - PLAYER_SIZE
-                && self.player.y > wall.y0 - PLAYER_SIZE
-                && self.player.y < wall.y1
+                && self.player.y > wall.y0 - PLAYER_SIZE + 1.
+                && self.player.y < wall.y1 - 1.
                 && self.player.direction == Direction::Right)
-                || (self.player.x < wall.x1
+                || (self.player.x <= wall.x1
                     && self.player.x > wall.x1 - 10.
-                    && self.player.y > wall.y0 - PLAYER_SIZE
-                    && self.player.y < wall.y1
+                    && self.player.y > wall.y0 - PLAYER_SIZE + 1.
+                    && self.player.y < wall.y1 -1.
                     && self.player.direction == Direction::Left)
-                || (self.player.y > wall.y0 - PLAYER_SIZE
+                || (self.player.y >= wall.y0 - PLAYER_SIZE
                     && self.player.y < wall.y0 + 10. - PLAYER_SIZE
-                    && self.player.x > wall.x0 - PLAYER_SIZE
-                    && self.player.x < wall.x1
+                    && self.player.x > wall.x0 - PLAYER_SIZE +1.
+                    && self.player.x < wall.x1 - 1.
                     && self.player.direction == Direction::Down)
-                || (self.player.y < wall.y1
+                || (self.player.y <= wall.y1
                     && self.player.y > wall.y1 - 10.
-                    && self.player.x > wall.x0 - PLAYER_SIZE
-                    && self.player.x < wall.x1
+                    && self.player.x > wall.x0 - PLAYER_SIZE + 1.
+                    && self.player.x < wall.x1 - 1.
                     && self.player.direction == Direction::Up)
             {
                 moveplayer = false;

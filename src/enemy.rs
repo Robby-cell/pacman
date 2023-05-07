@@ -460,7 +460,13 @@ impl Behavior for RedGhost {
         self.behave = new
     }
     fn at_corner(&mut self, corner: &Corner) {
-        self.direction = corner.next_dir(&self.target.0, &self.target.1, &self.x, &self.y, &self.direction)
+        self.direction = corner.next_dir(
+            &self.target.0,
+            &self.target.1,
+            &self.x,
+            &self.y,
+            &self.direction,
+        )
     }
     fn basic_movement(&mut self) {
         match self.direction {

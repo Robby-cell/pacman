@@ -22,7 +22,6 @@ use crate::player::*;
 use crate::utilities::SCREEN_HEIGHT;
 use crate::utilities::SCREEN_WIDTH;
 
-
 pub struct Game<T>
 where
     T: Collectible,
@@ -107,7 +106,13 @@ where
                         }
                     }
                 }
-                g.update(self.player.x, self.player.y, &self.player.direction, &rx, &ry);
+                g.update(
+                    self.player.x,
+                    self.player.y,
+                    &self.player.direction,
+                    &rx,
+                    &ry,
+                );
             }
         }
 

@@ -12,6 +12,7 @@ use crate::{
     },
 };
 
+#[derive(Copy, Clone)]
 pub enum Behave {
     Chase,
     Scatter,
@@ -28,6 +29,8 @@ pub trait Behavior {
     fn at_corner(&mut self, corner: &Corner);
     // state change (scatter -> chase etc.)
     fn change(&mut self, new: Behave);
+    // return the current behavior
+    fn behavior(&self) -> Behave;
 }
 
 pub trait Ghost: Behavior {
@@ -477,6 +480,10 @@ impl Behavior for RedGhost {
     fn new_chase(&mut self, px: f64, py: f64, dir: &Direction, _redx: &f64, _redy: &f64) {
         self.target = (px, py)
     }
+
+    fn behavior(&self) -> Behave {
+        self.behave
+    }
 }
 
 impl Behavior for PurpleGhost {
@@ -509,6 +516,10 @@ impl Behavior for PurpleGhost {
             &Direction::Down => (px, py + PLAYER_SIZE * 4.),
         }
     }
+
+    fn behavior(&self) -> Behave {
+        self.behave
+    }
 }
 
 impl Behavior for GreenGhost {
@@ -539,6 +550,10 @@ impl Behavior for GreenGhost {
         } else {
             self.target = self.default_target
         }
+    }
+
+    fn behavior(&self) -> Behave {
+        self.behave
     }
 }
 impl Behavior for BlueGhost {
@@ -575,6 +590,10 @@ impl Behavior for BlueGhost {
             neutral.0 - (_redx - neutral.0),
             neutral.1 - (_redy - neutral.1),
         )
+    }
+
+    fn behavior(&self) -> Behave {
+        self.behave
     }
 }
 

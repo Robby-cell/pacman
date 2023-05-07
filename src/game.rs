@@ -130,11 +130,11 @@ where
                 || (self.player.x <= wall.x1
                     && self.player.x > wall.x1 - 10.
                     && self.player.y > wall.y0 - PLAYER_SIZE + 1.
-                    && self.player.y < wall.y1 -1.
+                    && self.player.y < wall.y1 - 1.
                     && self.player.direction == Direction::Left)
                 || (self.player.y >= wall.y0 - PLAYER_SIZE
                     && self.player.y < wall.y0 + 10. - PLAYER_SIZE
-                    && self.player.x > wall.x0 - PLAYER_SIZE +1.
+                    && self.player.x > wall.x0 - PLAYER_SIZE + 1.
                     && self.player.x < wall.x1 - 1.
                     && self.player.direction == Direction::Down)
                 || (self.player.y <= wall.y1

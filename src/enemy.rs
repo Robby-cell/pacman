@@ -21,10 +21,7 @@ pub enum Behave {
 pub trait Behavior {
     // new chase target
     fn new_chase(&mut self, px: f64, py: f64, dir: &Direction, _redx: &f64, _redy: &f64);
-    // new scatter target
-    fn new_scatter(&mut self);
     // new frightened target (we will ignore since frightened does not have a target)
-    fn new_frightened(&mut self);
     // basic movement (updating x and y positions)
     fn basic_movement(&mut self);
     // what to do at a corner
@@ -261,14 +258,14 @@ impl BlueGhost {
 
 impl Ghost for RedGhost {
     fn update(&mut self, px: f64, py: f64, dir: &Direction, _redx: &f64, _redy: &f64) {
-        if self.moving {
-            self.basic_movement();
-        }
-
         match self.behave {
             Behave::Chase => self.new_chase(px, py, dir, _redx, _redy),
-            Behave::Frightened => self.new_frightened(),
-            Behave::Scatter => self.new_scatter(),
+            Behave::Scatter => self.target = self.default_target,
+            Behave::Frightened => (),
+        }
+
+        if self.moving {
+            self.basic_movement();
         }
     }
 
@@ -310,14 +307,14 @@ impl Ghost for RedGhost {
 
 impl Ghost for PurpleGhost {
     fn update(&mut self, px: f64, py: f64, dir: &Direction, _redx: &f64, _redy: &f64) {
-        if self.moving {
-            self.basic_movement();
-        }
-
         match self.behave {
             Behave::Chase => self.new_chase(px, py, dir, _redx, _redy),
-            Behave::Frightened => self.new_frightened(),
-            Behave::Scatter => self.new_scatter(),
+            Behave::Scatter => self.target = self.default_target,
+            Behave::Frightened => (),
+        }
+
+        if self.moving {
+            self.basic_movement();
         }
     }
 
@@ -359,13 +356,14 @@ impl Ghost for PurpleGhost {
 
 impl Ghost for GreenGhost {
     fn update(&mut self, px: f64, py: f64, dir: &Direction, _redx: &f64, _redy: &f64) {
-        if self.moving {
-            self.basic_movement();
-        }
         match self.behave {
             Behave::Chase => self.new_chase(px, py, dir, _redx, _redy),
-            Behave::Frightened => self.new_frightened(),
-            Behave::Scatter => self.new_scatter(),
+            Behave::Scatter => self.target = self.default_target,
+            Behave::Frightened => (),
+        }
+
+        if self.moving {
+            self.basic_movement();
         }
     }
 
@@ -407,14 +405,14 @@ impl Ghost for GreenGhost {
 
 impl Ghost for BlueGhost {
     fn update(&mut self, px: f64, py: f64, dir: &Direction, _redx: &f64, _redy: &f64) {
-        if self.moving {
-            self.basic_movement();
-        }
-
         match self.behave {
             Behave::Chase => self.new_chase(px, py, dir, _redx, _redy),
-            Behave::Frightened => self.new_frightened(),
-            Behave::Scatter => self.new_scatter(),
+            Behave::Scatter => self.target = self.default_target,
+            Behave::Frightened => (),
+        }
+
+        if self.moving {
+            self.basic_movement();
         }
     }
 
@@ -479,8 +477,6 @@ impl Behavior for RedGhost {
     fn new_chase(&mut self, px: f64, py: f64, dir: &Direction, _redx: &f64, _redy: &f64) {
         self.target = (px, py)
     }
-    fn new_frightened(&mut self) {}
-    fn new_scatter(&mut self) {}
 }
 
 impl Behavior for PurpleGhost {
@@ -488,7 +484,15 @@ impl Behavior for PurpleGhost {
         self.direction.reverse_direction();
         self.behave = new
     }
-    fn at_corner(&mut self, corner: &Corner) {}
+    fn at_corner(&mut self, corner: &Corner) {
+        self.direction = corner.next_dir(
+            &self.target.0,
+            &self.target.1,
+            &self.x,
+            &self.y,
+            &self.direction,
+        )
+    }
     fn basic_movement(&mut self) {
         match self.direction {
             Direction::Up => self.y -= self.speed,
@@ -505,8 +509,6 @@ impl Behavior for PurpleGhost {
             &Direction::Down => (px, py + PLAYER_SIZE * 4.),
         }
     }
-    fn new_frightened(&mut self) {}
-    fn new_scatter(&mut self) {}
 }
 
 impl Behavior for GreenGhost {
@@ -514,7 +516,15 @@ impl Behavior for GreenGhost {
         self.direction.reverse_direction();
         self.behave = new
     }
-    fn at_corner(&mut self, corner: &Corner) {}
+    fn at_corner(&mut self, corner: &Corner) {
+        self.direction = corner.next_dir(
+            &self.target.0,
+            &self.target.1,
+            &self.x,
+            &self.y,
+            &self.direction,
+        )
+    }
     fn basic_movement(&mut self) {
         match self.direction {
             Direction::Up => self.y -= self.speed,
@@ -530,15 +540,21 @@ impl Behavior for GreenGhost {
             self.target = self.default_target
         }
     }
-    fn new_frightened(&mut self) {}
-    fn new_scatter(&mut self) {}
 }
 impl Behavior for BlueGhost {
     fn change(&mut self, new: Behave) {
         self.direction.reverse_direction();
         self.behave = new
     }
-    fn at_corner(&mut self, corner: &Corner) {}
+    fn at_corner(&mut self, corner: &Corner) {
+        self.direction = corner.next_dir(
+            &self.target.0,
+            &self.target.1,
+            &self.x,
+            &self.y,
+            &self.direction,
+        )
+    }
     fn basic_movement(&mut self) {
         match self.direction {
             Direction::Up => self.y -= self.speed,
@@ -560,34 +576,28 @@ impl Behavior for BlueGhost {
             neutral.1 - (_redy - neutral.1),
         )
     }
-    fn new_frightened(&mut self) {}
-    fn new_scatter(&mut self) {}
 }
 
 /*
 // the aggressive ghost, aims for the player
-pub trait Blinky {
+mod Blinky {
     // red, top right
-    fn move_e(&mut self, corner: &Corner, px: f64, py: f64);
 }
 
 // this one aims for 4 "squares" in front of the player
-pub trait Pinky {
+mod Pinky {
     // purple, top left
-    fn move_e(&mut self, corner: &Corner, px: f64, py: f64);
 }
 
 // the flank ghost
 // aims for;
 // vector from 2 "squares" in front of the player to Blinky rotated 180 deg
-pub trait Inky {
+mod Inky {
     // blue, bottom right
-    fn move_e(&mut self, corner: &Corner, px: f64, py: f64);
 }
 
 // this ghost is random and does his own thing
-pub trait Clyde {
+mod Clyde {
     // our green ghost, stays in bottom left
-    fn move_e(&mut self, corner: &Corner, px: f64, py: f64);
 }
 */

@@ -3,14 +3,12 @@ use std::path::Path;
 use graphics::{rectangle::square, DrawState, Image};
 use opengl_graphics::{GlGraphics, OpenGL, Texture, TextureSettings};
 use piston::RenderArgs;
-use rand::{thread_rng, Rng};
 
 use crate::{
     corner::Corner,
     utilities::{
-        pick_random_direction, Blinky,
         Direction::{self, *},
-        Moveable, ENEMY_SIZE, GHOST_SPEED, SCREEN_WIDTH, PLAYER_SIZE,
+        ENEMY_SIZE, PLAYER_SIZE,
     },
 };
 
@@ -21,22 +19,35 @@ pub enum Behave {
 }
 
 pub trait Behavior {
+    // new chase target
     fn new_chase(&mut self, px: f64, py: f64, dir: &Direction, _redx: &f64, _redy: &f64);
+    // new scatter target
     fn new_scatter(&mut self);
+    // new frightened target (we will ignore since frightened does not have a target)
     fn new_frightened(&mut self);
+    // basic movement (updating x and y positions)
     fn basic_movement(&mut self);
-    fn chase(&mut self, px: f64, py: f64, corner: &Corner);
+    // what to do at a corner
+    fn at_corner(&mut self, corner: &Corner);
+    // state change (scatter -> chase etc.)
     fn change(&mut self, new: Behave);
 }
 
 pub trait Ghost: Behavior {
+    // updating...
     fn update(&mut self, px: f64, py: f64, dir: &Direction, _redx: &f64, _redy: &f64);
+    // rendering...
     fn render(&mut self, args: &RenderArgs);
+    // returning x and y values
     fn x(&self) -> f64;
     fn y(&self) -> f64;
+    // returns direction
     fn direction(&self) -> Direction;
+    // returns whether ghost is moving or not
     fn moving(&self) -> bool;
+    // set moving status
     fn set_moving(&mut self, moving: bool);
+    // whether ghost is the red one
     fn is_red(&self) -> bool;
 }
 
@@ -448,8 +459,8 @@ impl Behavior for RedGhost {
         self.direction.reverse_direction();
         self.behave = new
     }
-    fn chase(&mut self, px: f64, py: f64, corner: &Corner) {
-        self.direction = corner.next_dir(&px, &py, &self.x, &self.y, &self.direction)
+    fn at_corner(&mut self, corner: &Corner) {
+        self.direction = corner.next_dir(&self.target.0, &self.target.1, &self.x, &self.y, &self.direction)
     }
     fn basic_movement(&mut self) {
         match self.direction {
@@ -471,7 +482,7 @@ impl Behavior for PurpleGhost {
         self.direction.reverse_direction();
         self.behave = new
     }
-    fn chase(&mut self, px: f64, py: f64, corner: &Corner) {}
+    fn at_corner(&mut self, corner: &Corner) {}
     fn basic_movement(&mut self) {
         match self.direction {
             Direction::Up => self.y -= self.speed,
@@ -481,13 +492,12 @@ impl Behavior for PurpleGhost {
         }
     }
     fn new_chase(&mut self, px: f64, py: f64, dir: &Direction, _redx: &f64, _redy: &f64) {
-        self.target = 
-            match dir {
-                &Direction::Left => (px - PLAYER_SIZE*4., py),
-                &Direction::Right => (px + PLAYER_SIZE*4., py),
-                &Direction::Up => (px - PLAYER_SIZE*4., py - PLAYER_SIZE*4.),
-                &Direction::Down => (px, py + PLAYER_SIZE*4.),
-            }
+        self.target = match dir {
+            &Direction::Left => (px - PLAYER_SIZE * 4., py),
+            &Direction::Right => (px + PLAYER_SIZE * 4., py),
+            &Direction::Up => (px - PLAYER_SIZE * 4., py - PLAYER_SIZE * 4.),
+            &Direction::Down => (px, py + PLAYER_SIZE * 4.),
+        }
     }
     fn new_frightened(&mut self) {}
     fn new_scatter(&mut self) {}
@@ -498,7 +508,7 @@ impl Behavior for GreenGhost {
         self.direction.reverse_direction();
         self.behave = new
     }
-    fn chase(&mut self, px: f64, py: f64, corner: &Corner) {}
+    fn at_corner(&mut self, corner: &Corner) {}
     fn basic_movement(&mut self) {
         match self.direction {
             Direction::Up => self.y -= self.speed,
@@ -508,7 +518,7 @@ impl Behavior for GreenGhost {
         }
     }
     fn new_chase(&mut self, px: f64, py: f64, dir: &Direction, _redx: &f64, _redy: &f64) {
-        if (px + py).sqrt() > PLAYER_SIZE*8. {
+        if (px + py).sqrt() > PLAYER_SIZE * 8. {
             self.target = (px, py)
         } else {
             self.target = self.default_target
@@ -522,7 +532,7 @@ impl Behavior for BlueGhost {
         self.direction.reverse_direction();
         self.behave = new
     }
-    fn chase(&mut self, px: f64, py: f64, corner: &Corner) {}
+    fn at_corner(&mut self, corner: &Corner) {}
     fn basic_movement(&mut self) {
         match self.direction {
             Direction::Up => self.y -= self.speed,
@@ -533,13 +543,16 @@ impl Behavior for BlueGhost {
     }
     fn new_chase(&mut self, px: f64, py: f64, dir: &Direction, _redx: &f64, _redy: &f64) {
         let neutral = match dir {
-            &Direction::Left => (px - PLAYER_SIZE*2., py),
-            &Direction::Right => (px + PLAYER_SIZE*2., py),
-            &Direction::Up => (px - PLAYER_SIZE*2., py - PLAYER_SIZE*2.),
-            &Direction::Down => (px, py + PLAYER_SIZE*2.),
+            &Direction::Left => (px - PLAYER_SIZE * 2., py),
+            &Direction::Right => (px + PLAYER_SIZE * 2., py),
+            &Direction::Up => (px - PLAYER_SIZE * 2., py - PLAYER_SIZE * 2.),
+            &Direction::Down => (px, py + PLAYER_SIZE * 2.),
         };
 
-        self.target = (neutral.0 - (_redx - neutral.0), neutral.1 - (_redy - neutral.1))
+        self.target = (
+            neutral.0 - (_redx - neutral.0),
+            neutral.1 - (_redy - neutral.1),
+        )
     }
     fn new_frightened(&mut self) {}
     fn new_scatter(&mut self) {}

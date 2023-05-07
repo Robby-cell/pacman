@@ -25,34 +25,6 @@ pub trait Moveable {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// following: we will have the ghosts change their target based on where the player is and their state
-
-// the aggressive ghost, aims for the player
-pub trait Blinky {
-    fn retarget_b(&mut self, px: f64, py: f64);
-    fn move_b(&mut self, corner: &Option<Corner>);
-}
-
-// this one aims for 4 "squares" in front of the player
-pub trait Pinky {
-    fn retarget_p(&mut self, px: f64, py: f64);
-    fn move_p(&mut self, corner: &Option<Corner>);
-}
-
-// the flank ghost
-// aims for;
-// vector from 2 "squares" in front of the player to Blinky rotated 180 deg
-pub trait Inky {
-    fn retarget_i(&mut self, px: f64, py: f64);
-    fn move_i(&mut self, corner: &Option<Corner>);
-}
-
-// this ghost is random and does his own thing
-pub trait Clyde {
-    fn retarget_c(&mut self, px: f64, py: f64);
-    fn move_c(&mut self, corner: &Option<Corner>);
-}
-
 #[derive(PartialEq, Copy, Clone)]
 pub enum Direction {
     Up,

@@ -13,6 +13,7 @@ use opengl_graphics::OpenGL;
 use opengl_graphics::TextureSettings;
 use piston::input::{Button, RenderArgs};
 
+use crate::corner::Corner;
 use crate::enemy::*;
 use crate::map::Wall;
 use crate::point::PointType;
@@ -38,6 +39,7 @@ where
     pub ghosts: Box<[Option<Box<dyn Ghost>>; 4]>,
     wall_gl: GlGraphics,
     walls: Vec<Wall>,
+    corners: Vec<Corner>,
     //glyph_cache: GlyphCache,
 }
 
@@ -46,6 +48,8 @@ where
     T: Collectible,
 {
     pub fn new(gl: GlGraphics, x: f64, y: f64, health: i32) -> Self {
+
+        let new_map = builder::builder::new_map();
         Game {
             gl,
             player: Player::new(x, y, health),
@@ -64,7 +68,9 @@ where
             walls: /*Box::new([
                 Wall::new((40., 40.), 360., 60., [0., 0., 1., 1.]),
                 Wall::new((600., 200.), 60., 300., [0., 0., 1., 1.]),])*/
-                builder::wall_builder::builder(),
+                new_map.0,
+
+            corners: new_map.1,
             //glyph_cache: GlyphCache::new(),
         }
     }

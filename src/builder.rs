@@ -1,30 +1,49 @@
 // module focused on building walls.
 // predefined shapes can be drawn.
 
-pub mod wall_builder {
+pub mod builder {
 
-    use crate::map::Wall;
+    use crate::{map::Wall, corner::Corner, utilities::Direction};
 
     // to build a new map
     // or at least the intended purpose is this
-    pub fn builder() -> Vec<Wall> {
-        let a1 = U_UP(600., 300., 300., 300., 50., [0., 0., 1., 1.]);
-        let a2 = L_RIGHT(600., 650., 100., 300., 50., [0., 0., 1., 1.]);
-        let a3 = L_LEFT(350., 50., 400., 300., 40., [0., 1., 0., 1.]);
+    pub fn new_map() -> (Vec<Wall>, Vec<Corner>) {
+        let wall_holder: Box<[Box<[Wall]>]> = Box::new(
+            [
+            Box::new(U_UP(600., 300., 300., 300., 50., [0., 0., 1., 1.])),
+            Box::new(L_RIGHT(600., 650., 100., 300., 50., [0., 0., 1., 1.])),
+            Box::new(L_LEFT(350., 50., 400., 300., 40., [0., 1., 0., 1.])),
+            ]
+        );
 
-        let mut vect: Vec<Wall> = Vec::new();
+        let mut walls: Vec<Wall> = Vec::new();
 
-        for &v in a1.iter() {
-            vect.push(v);
-        }
-        for &v in a2.iter() {
-            vect.push(v);
-        }
-        for &v in a3.iter() {
-            vect.push(v);
+        for wall_pattern in wall_holder.iter() {
+            for &wall in wall_pattern.iter() {
+                walls.push(wall);
+            }
         }
 
-        vect
+        /* 
+        for &v in w1.iter() {
+            walls.push(v);
+        }
+        for &v in w2.iter() {
+            walls.push(v);
+        }
+        for &v in w3.iter() {
+            walls.push(v);
+        }
+        */
+
+        let corners = vec![
+            Corner::new(700., 700., Box::new(
+                [Direction::Up, Direction::Right]
+            )),
+        ];
+
+
+        (walls, corners)
     }
 
     // top left is x, y

@@ -51,8 +51,7 @@ pub trait Ghost: Behavior {
     fn is_red(&self) -> bool;
 }
 
-// todo: struct for each color, remove color enum, and implement
-// each behavior with 1 single trait, Box<dyn Behavior + Ghost> or something similar
+
 #[allow(unused)]
 pub struct RedGhost {
     gl: GlGraphics,

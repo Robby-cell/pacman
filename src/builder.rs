@@ -3,16 +3,16 @@
 
 pub mod builder {
 
-    use crate::{map::Wall, corner::Corner, utilities::Direction};
+    use crate::{map::Wall, corner::Corner, utilities::{Direction, PLAYER_SIZE, RED, GREEN, BLUE, YELLOW, HALF_PLAYER}};
 
     // to build a new map
     // or at least the intended purpose is this
+    // this is a sample map
     pub fn new_map() -> (Vec<Wall>, Vec<Corner>) {
         let wall_holder: Box<[Box<[Wall]>]> = Box::new(
             [
-            Box::new(U_UP(600., 300., 300., 300., 50., [0., 0., 1., 1.])),
-            Box::new(L_RIGHT(600., 650., 100., 300., 50., [0., 0., 1., 1.])),
-            Box::new(L_LEFT(350., 50., 400., 300., 40., [0., 1., 0., 1.])),
+                Box::new([Wall::new((PLAYER_SIZE, PLAYER_SIZE), PLAYER_SIZE, HALF_PLAYER, BLUE)]),
+                Box::new([Wall::new((PLAYER_SIZE, PLAYER_SIZE), PLAYER_SIZE, HALF_PLAYER, BLUE)]),
             ]
         );
 
@@ -40,6 +40,7 @@ pub mod builder {
             Corner::new(700., 700., Box::new(
                 [Direction::Up, Direction::Right]
             )),
+            //Corner::new(x, y, directions)
         ];
 
 

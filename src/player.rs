@@ -25,6 +25,7 @@ pub struct Player {
     open: Box<Texture>,
     travel: u8,
     pub moving: bool,
+    next_dir: Option<Direction>,
 }
 
 impl Moveable for Player {
@@ -80,6 +81,7 @@ impl Player {
             ),
             travel: 0,
             moving: false,
+            next_dir: None,
         }
     }
 

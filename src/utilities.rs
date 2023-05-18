@@ -14,10 +14,10 @@ pub const YELLOW: [f32; 4] = [1.0, 1.0, 0.0, 1.0];
 pub const ENEMY_SIZE: f64 = 40_f64;
 pub const SCREEN_HEIGHT: f64 = 10_f64 * PLAYER_SIZE;
 pub const SCREEN_WIDTH: f64 = 2.5f64 * SCREEN_HEIGHT;
-pub const GHOST_SPEED: f64 = 1_f64;
+pub const GHOST_SPEED: f64 = 2_f64;
 pub const WALL_SIZE: f64 = 50_f64;
 pub const UNIT_SIZE: f64 = 20_f64;
-pub const PLAYER_SPEED: f64 = 3_f64;
+pub const PLAYER_SPEED: f64 = 2_f64;
 
 pub trait Reset {
     fn reset(&mut self);

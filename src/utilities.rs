@@ -40,29 +40,32 @@ pub enum Direction {
 
 impl Direction {
     pub fn reverse_direction(&mut self) {
+        use Direction::*;
         *self = match self {
-            Direction::Up => Direction::Down,
-            Direction::Right => Direction::Left,
-            Direction::Down => Direction::Up,
-            Direction::Left => Direction::Right,
+            Up => Down,
+            Right => Left,
+            Down => Up,
+            Left => Right,
         }
     }
 
     pub fn reversed(&self) -> Self {
+        use Direction::*;
         match self {
-            Direction::Up => Direction::Down,
-            Direction::Right => Direction::Left,
-            Direction::Down => Direction::Up,
-            Direction::Left => Direction::Right,
+            Up => Down,
+            Right => Left,
+            Down => Up,
+            Left => Right,
         }
     }
 
     pub fn randomize() -> Self {
+        use Direction::*;
         match rand::thread_rng().gen_range(0..=3) {
-            0 => Direction::Up,
-            1 => Direction::Right,
-            2 => Direction::Down,
-            _ => Direction::Left,
+            0 => Up,
+            1 => Right,
+            2 => Down,
+            _ => Left,
         }
     }
 }

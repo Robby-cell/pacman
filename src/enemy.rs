@@ -52,66 +52,30 @@ pub trait Ghost: Behavior {
 }
 
 
-#[allow(unused)]
-pub struct RedGhost {
-    gl: GlGraphics,
-    pub x: f64,
-    pub y: f64,
-    speed: f64,
-    pub direction: Direction,
-    behave: Behave,
-    pub moving: bool,
-    ghost_texture_right: Box<Texture>,
-    ghost_texture_mid: Box<Texture>,
-    ghost_texture_left: Box<Texture>,
-    target: (f64, f64),
-    default_target: (f64, f64),
+macro_rules! ghost_make {
+    ($name:tt) => {
+        pub struct $name {
+            gl: GlGraphics,
+            pub x: f64,
+            pub y: f64,
+            speed: f64,
+            pub direction: Direction,
+            behave: Behave,
+            pub moving: bool,
+            ghost_texture_right: Box<Texture>,
+            ghost_texture_mid: Box<Texture>,
+            ghost_texture_left: Box<Texture>,
+            target: (f64, f64),
+            default_target: (f64, f64),
+        }
+    };
 }
 
-pub struct PurpleGhost {
-    gl: GlGraphics,
-    pub x: f64,
-    pub y: f64,
-    speed: f64,
-    pub direction: Direction,
-    behave: Behave,
-    pub moving: bool,
-    ghost_texture_right: Box<Texture>,
-    ghost_texture_mid: Box<Texture>,
-    ghost_texture_left: Box<Texture>,
-    target: (f64, f64),
-    default_target: (f64, f64),
-}
+ghost_make!(RedGhost);
+ghost_make!(PurpleGhost);
+ghost_make!(GreenGhost);
+ghost_make!(BlueGhost);
 
-pub struct GreenGhost {
-    gl: GlGraphics,
-    pub x: f64,
-    pub y: f64,
-    speed: f64,
-    pub direction: Direction,
-    behave: Behave,
-    pub moving: bool,
-    ghost_texture_right: Box<Texture>,
-    ghost_texture_mid: Box<Texture>,
-    ghost_texture_left: Box<Texture>,
-    target: (f64, f64),
-    default_target: (f64, f64),
-}
-
-pub struct BlueGhost {
-    gl: GlGraphics,
-    pub x: f64,
-    pub y: f64,
-    speed: f64,
-    pub direction: Direction,
-    behave: Behave,
-    pub moving: bool,
-    ghost_texture_right: Box<Texture>,
-    ghost_texture_mid: Box<Texture>,
-    ghost_texture_left: Box<Texture>,
-    target: (f64, f64),
-    default_target: (f64, f64),
-}
 
 impl RedGhost {
     pub fn new(x: f64, y: f64, speed: f64, default_target: (f64, f64)) -> Self {

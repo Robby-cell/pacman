@@ -1,4 +1,4 @@
-// constants go here, and any universal utilities (enums, structs, traits that multiples mods will use)
+// constants go here, and any universal utilities (enums, structs, traits that multiple modules will use)
 
 use piston::RenderArgs;
 use rand::Rng;

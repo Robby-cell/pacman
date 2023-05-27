@@ -3,18 +3,30 @@
 
 pub mod builder {
 
-    use crate::{map::Wall, corner::Corner, utilities::{Direction, PLAYER_SIZE, RED, GREEN, BLUE, YELLOW, HALF_PLAYER}};
+    use crate::utilities::HALF_PLAYER as HALF_UNIT;
+    use crate::utilities::PLAYER_SIZE as UNIT;
+    use crate::{
+        corner::Corner,
+        map::Wall,
+        utilities::{Direction, BLUE, GREEN, RED, YELLOW},
+    };
+
+    pub const ORIGIN: f64 = 0_f64;
 
     // to build a new map
     // or at least the intended purpose is this
     // this is a sample map
     pub fn new_map() -> (Vec<Wall>, Vec<Corner>) {
-        let wall_holder: Box<[Box<[Wall]>]> = Box::new(
-            [
-                Box::new([Wall::new((PLAYER_SIZE, PLAYER_SIZE), PLAYER_SIZE, HALF_PLAYER, BLUE)]),
-                Box::new([Wall::new((PLAYER_SIZE, PLAYER_SIZE), PLAYER_SIZE, HALF_PLAYER, BLUE)]),
-            ]
-        );
+        // UNIT is the size of a unit
+
+        let wall_holder: Box<[Box<[Wall]>]> = Box::new([
+            Box::new([Wall::new((UNIT, UNIT), UNIT, HALF_UNIT, BLUE)]),
+            Box::new([Wall::new((ORIGIN, 2.5 * UNIT), 2. * UNIT, UNIT, BLUE)]),
+
+
+            // G shape at top left
+            Box::new(U_RIGHT(3. * UNIT, UNIT, 4.5 * UNIT, 4. * UNIT, UNIT, BLUE)),
+        ]);
 
         let mut walls: Vec<Wall> = Vec::new();
 
@@ -24,7 +36,7 @@ pub mod builder {
             }
         }
 
-        /* 
+        /*
         for &v in w1.iter() {
             walls.push(v);
         }
@@ -37,12 +49,9 @@ pub mod builder {
         */
 
         let corners = vec![
-            Corner::new(700., 700., Box::new(
-                [Direction::Up, Direction::Right]
-            )),
+            Corner::new(700., 700., Box::new([Direction::Up, Direction::Right])),
             //Corner::new(x, y, directions)
         ];
-
 
         (walls, corners)
     }
@@ -136,6 +145,27 @@ pub mod builder {
                 (x + width - thickness, y + thickness),
                 thickness,
                 height - thickness,
+                color,
+            ),
+        ]
+    }
+
+    #[allow(non_snake_case)]
+    pub fn U_RIGHT(
+        x: f64,
+        y: f64,
+        height: f64,
+        width: f64,
+        thickness: f64,
+        color: [f32; 4],
+    ) -> [Wall; 3] {
+        [
+            Wall::new((x, y), width, thickness, color),
+            Wall::new((x, y + thickness), thickness, height - thickness, color),
+            Wall::new(
+                (x + thickness, y + height - thickness),
+                width - thickness,
+                thickness,
                 color,
             ),
         ]

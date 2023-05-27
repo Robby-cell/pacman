@@ -12,7 +12,7 @@ use crate::{
     },
 };
 
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub enum Behave {
     Chase,
     Scatter,
@@ -30,7 +30,7 @@ pub trait Behavior {
     // state change (scatter -> chase etc.)
     fn change(&mut self, new: Behave);
     // return the current behavior
-    fn behavior(&self) -> Behave;
+    fn behavior<'a>(&'a self) -> &'a Behave;
 }
 
 pub trait Ghost: Behavior {
@@ -51,9 +51,8 @@ pub trait Ghost: Behavior {
     fn is_red(&self) -> bool;
 }
 
-
-macro_rules! ghost_make {
-    ($name:tt) => {
+macro_rules! ghost_struct {
+    {$name:tt} => {
         pub struct $name {
             gl: GlGraphics,
             pub x: f64,
@@ -71,11 +70,10 @@ macro_rules! ghost_make {
     };
 }
 
-ghost_make!(RedGhost);
-ghost_make!(PurpleGhost);
-ghost_make!(GreenGhost);
-ghost_make!(BlueGhost);
-
+ghost_struct! {RedGhost}
+ghost_struct! {PurpleGhost}
+ghost_struct! {GreenGhost}
+ghost_struct! {BlueGhost}
 
 impl RedGhost {
     pub fn new(x: f64, y: f64, speed: f64, default_target: (f64, f64)) -> Self {
@@ -89,7 +87,7 @@ impl RedGhost {
             moving: true,
             ghost_texture_right: Box::new(
                 Texture::from_path(
-                    Path::new("./assets/ghosts/red-ghost-right.png"), // make these mid sprite
+                    Path::new("./assets/ghosts/red-ghost-right.png"),
                     &TextureSettings::new(),
                 )
                 .unwrap(),
@@ -103,7 +101,7 @@ impl RedGhost {
             ),
             ghost_texture_left: Box::new(
                 Texture::from_path(
-                    Path::new("./assets/ghosts/red-ghost-left.png"), // make these mid sprite
+                    Path::new("./assets/ghosts/red-ghost-left.png"),
                     &TextureSettings::new(),
                 )
                 .unwrap(),
@@ -125,7 +123,7 @@ impl PurpleGhost {
             moving: true,
             ghost_texture_right: Box::new(
                 Texture::from_path(
-                    Path::new("./assets/ghosts/purple-ghost-right.png"), // make these mid sprite
+                    Path::new("./assets/ghosts/purple-ghost-right.png"),
                     &TextureSettings::new(),
                 )
                 .unwrap(),
@@ -139,7 +137,7 @@ impl PurpleGhost {
             ),
             ghost_texture_left: Box::new(
                 Texture::from_path(
-                    Path::new("./assets/ghosts/purple-ghost-left.png"), // make these mid sprite
+                    Path::new("./assets/ghosts/purple-ghost-left.png"),
                     &TextureSettings::new(),
                 )
                 .unwrap(),
@@ -161,7 +159,7 @@ impl GreenGhost {
             moving: true,
             ghost_texture_right: Box::new(
                 Texture::from_path(
-                    Path::new("./assets/ghosts/green-ghost-right.png"), // make these mid sprite
+                    Path::new("./assets/ghosts/green-ghost-right.png"),
                     &TextureSettings::new(),
                 )
                 .unwrap(),
@@ -175,7 +173,7 @@ impl GreenGhost {
             ),
             ghost_texture_left: Box::new(
                 Texture::from_path(
-                    Path::new("./assets/ghosts/green-ghost-left.png"), // make these mid sprite
+                    Path::new("./assets/ghosts/green-ghost-left.png"),
                     &TextureSettings::new(),
                 )
                 .unwrap(),
@@ -197,7 +195,7 @@ impl BlueGhost {
             moving: true,
             ghost_texture_right: Box::new(
                 Texture::from_path(
-                    Path::new("./assets/ghosts/blue-ghost-right.png"), // make these mid sprite
+                    Path::new("./assets/ghosts/blue-ghost-right.png"),
                     &TextureSettings::new(),
                 )
                 .unwrap(),
@@ -211,7 +209,7 @@ impl BlueGhost {
             ),
             ghost_texture_left: Box::new(
                 Texture::from_path(
-                    Path::new("./assets/ghosts/blue-ghost-left.png"), // make these mid sprite
+                    Path::new("./assets/ghosts/blue-ghost-left.png"),
                     &TextureSettings::new(),
                 )
                 .unwrap(),
@@ -444,8 +442,8 @@ impl Behavior for RedGhost {
         self.target = (px, py)
     }
 
-    fn behavior(&self) -> Behave {
-        self.behave
+    fn behavior<'a>(&'a self) -> &'a Behave {
+        &self.behave
     }
 }
 
@@ -480,8 +478,8 @@ impl Behavior for PurpleGhost {
         }
     }
 
-    fn behavior(&self) -> Behave {
-        self.behave
+    fn behavior<'a>(&'a self) -> &'a Behave {
+        &self.behave
     }
 }
 
@@ -515,8 +513,8 @@ impl Behavior for GreenGhost {
         }
     }
 
-    fn behavior(&self) -> Behave {
-        self.behave
+    fn behavior<'a>(&'a self) -> &'a Behave {
+        &self.behave
     }
 }
 impl Behavior for BlueGhost {
@@ -555,8 +553,8 @@ impl Behavior for BlueGhost {
         )
     }
 
-    fn behavior(&self) -> Behave {
-        self.behave
+    fn behavior<'a>(&'a self) -> &'a Behave {
+        &self.behave
     }
 }
 

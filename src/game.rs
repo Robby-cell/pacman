@@ -1,12 +1,15 @@
 use std::vec;
 
-use graphics::color::BLACK;
+use glutin_window::GlutinWindow;
 use graphics::glyph_cache::rusttype::GlyphCache;
 use graphics::{DrawState, Transformed};
+use piston::RenderEvent;
+use piston::ButtonEvent;
 
 use opengl_graphics::{Filter, GlGraphics, OpenGL, TextureSettings};
 
 use piston::input::{Button, RenderArgs};
+use piston::{WindowSettings, Events, EventSettings, EventLoop};
 
 use crate::corner::Corner;
 
@@ -14,14 +17,70 @@ use crate::enemy::*;
 
 use crate::map::Wall;
 
-use crate::point::PointType;
+use crate::point::{PointType, Point};
 
-use crate::utilities::{Collectible, Direction};
-use crate::utilities::{ENEMY_SIZE, GHOST_SPEED, PLAYER_SIZE};
-use crate::utilities::{SCREEN_HEIGHT, SCREEN_WIDTH};
+use crate::startscreen::StartScreen;
+use crate::utilities::*;
 
 use crate::builder;
 use crate::player::*;
+
+use std::result::Result;
+use std::error::Error;
+pub fn mainloop() -> Result<(), Box<dyn Error>> {
+    let opengl = OpenGL::V4_2;
+    let mut state = State::StartScreen;
+
+    let mut window: GlutinWindow =
+        WindowSettings::new("Pacman!", (SCREEN_WIDTH, SCREEN_HEIGHT + BAND_SIZE))
+            .exit_on_esc(true)
+            .build()
+            .ok()
+            .ok_or("Could not create Window")?;
+
+    let mut game = Box::new(Game::<Point>::new(GlGraphics::new(opengl), 3));
+    let mut events = Events::new(EventSettings::new()).ups(60);
+    let mut startscreen = StartScreen::new(OpenGL::V4_2);
+
+    while let Some(e) = events.next(&mut window) {
+        if let Some(r) = e.render_args() {
+            match state {
+                State::StartScreen => {
+                    game.render(&r);
+
+                    startscreen.render(&r);
+                    ()
+                }
+                State::Play => {
+                    game.update();
+                    game.render(&r);
+                }
+                State::Menu => {
+                    todo!("add menu state")
+                }
+            }
+        }
+
+        if let Some(k) = e.button_args() {
+            match state {
+                State::StartScreen => match &k.button {
+                    &Button::Mouse(_) => (),
+                    _ => {
+                        state = State::Play;
+                    }
+                },
+                State::Play => {
+                    game.button_pressed(&k.button);
+                }
+                State::Menu => {
+                    todo!("menu screen and its implementations");
+                }
+            }
+        }
+    }
+
+    Ok(())
+}
 
 pub struct Game<T>
 where
@@ -42,7 +101,7 @@ impl<T> Game<T>
 where
     T: Collectible,
 {
-    pub fn new(gl: GlGraphics, x: f64, y: f64, health: i32) -> Self {
+    pub fn new(gl: GlGraphics, health: i32) -> Self {
         let sample_map = builder::builder::new_map(); // tuple of (all of the walls, all of the corners)
 
         let enemy_halfx = SCREEN_WIDTH / 2. - ENEMY_SIZE / 2.;
@@ -131,7 +190,7 @@ where
         for &wall in self.walls.iter() {
             if (self.player.x >= wall.x0 - PLAYER_SIZE
                 && self.player.x < wall.x0 + 10. - PLAYER_SIZE
-                && self.player.y > wall.y0 - PLAYER_SIZE + 1.
+                && self.player.y > wall.y0 - PLAYER_SIZE + 1. // offsets so the player doesnt get stuck navigating 
                 && self.player.y < wall.y1 - 1.
                 && self.player.direction == Direction::Right)
                 || (self.player.x <= wall.x1
@@ -173,18 +232,17 @@ where
     }
 
     pub fn render(&mut self, args: &RenderArgs) {
-        use crate::utilities::{BAND_SIZE, TEXT_SIZE};
 
         let position_y = SCREEN_HEIGHT + (BAND_SIZE + TEXT_SIZE as f64) / 2.;
 
         self.gl.draw(args.viewport(), |c, gl| {
-            graphics::clear([0., 0., 0.1, 1.], gl);
+            graphics::clear([0., 0., 0., 1.], gl);
 
             let texture_settings: TextureSettings = TextureSettings::new().filter(Filter::Nearest);
             let ref mut glyphs =
                 GlyphCache::new("./assets/fonts/RoadPixel.ttf", (), texture_settings).unwrap();
 
-            let line = graphics::line::Line::new([0., 1., 0., 1.], 2.);
+            let line = graphics::line::Line::new([0., 1., 0., 1.], 1.);
 
             graphics::line::Line::draw(
                 &line,
@@ -203,6 +261,7 @@ where
                 gl,
             )
             .unwrap();
+
             graphics::text(
                 [1., 0., 0., 1.],
                 TEXT_SIZE,

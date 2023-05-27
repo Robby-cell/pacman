@@ -148,23 +148,28 @@ impl Player {
     pub fn change_direction(&mut self, btn: &Button) {
         match btn {
             &Button::Keyboard(Key::W) => {
+                self.next_dir = None;
                 self.moving = true;
                 self.direction = Direction::Up
             }
             &Button::Keyboard(Key::D) => {
+                self.next_dir = None;
                 self.moving = true;
                 self.direction = Direction::Right
             }
             &Button::Keyboard(Key::S) => {
+                self.next_dir = None;
                 self.moving = true;
                 self.direction = Direction::Down
             }
             &Button::Keyboard(Key::A) => {
+                self.next_dir = None;
                 self.moving = true;
                 self.direction = Direction::Left
             }
 
             &Button::Keyboard(Key::Space) => {
+                self.next_dir = None;
                 self.travel = 4;
                 self.moving = false
             }

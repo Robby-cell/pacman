@@ -25,11 +25,12 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
     let opengl = OpenGL::V4_2;
     let mut state = State::StartScreen;
 
-    let mut window: GlutinWindow = WindowSettings::new("Pacman!", (SCREEN_WIDTH, SCREEN_HEIGHT))
-        .exit_on_esc(true)
-        .build()
-        .ok()
-        .ok_or("Could not create Window")?;
+    let mut window: GlutinWindow =
+        WindowSettings::new("Pacman!", (SCREEN_WIDTH, SCREEN_HEIGHT + BAND_SIZE))
+            .exit_on_esc(true)
+            .build()
+            .ok()
+            .ok_or("Could not create Window")?;
 
     let mut game = Box::new(Game::<Point>::new(GlGraphics::new(opengl), 500., 500., 3));
     let mut events = Events::new(EventSettings::new()).ups(60);

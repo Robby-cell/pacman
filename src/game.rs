@@ -1,8 +1,8 @@
-
 use std::vec;
 
+use graphics::color::BLACK;
 use graphics::glyph_cache::rusttype::GlyphCache;
-use graphics::Transformed;
+use graphics::{DrawState, Transformed};
 
 use opengl_graphics::{Filter, GlGraphics, OpenGL, TextureSettings};
 
@@ -17,12 +17,11 @@ use crate::map::Wall;
 use crate::point::PointType;
 
 use crate::utilities::{Collectible, Direction};
-use crate::utilities::{ENEMY_SIZE, PLAYER_SIZE, GHOST_SPEED};
+use crate::utilities::{ENEMY_SIZE, GHOST_SPEED, PLAYER_SIZE};
 use crate::utilities::{SCREEN_HEIGHT, SCREEN_WIDTH};
 
 use crate::builder;
 use crate::player::*;
-
 
 pub struct Game<T>
 where
@@ -44,14 +43,13 @@ where
     T: Collectible,
 {
     pub fn new(gl: GlGraphics, x: f64, y: f64, health: i32) -> Self {
-
         let sample_map = builder::builder::new_map(); // tuple of (all of the walls, all of the corners)
 
-        let enemy_halfx = SCREEN_WIDTH/2. - ENEMY_SIZE/2.;
-        let enemy_halfy = SCREEN_HEIGHT/2. - ENEMY_SIZE/2.;
+        let enemy_halfx = SCREEN_WIDTH / 2. - ENEMY_SIZE / 2.;
+        let enemy_halfy = SCREEN_HEIGHT / 2. - ENEMY_SIZE / 2.;
 
-        let pac_startx = SCREEN_WIDTH/2. - PLAYER_SIZE/2.;
-        let pac_starty = SCREEN_HEIGHT - PLAYER_SIZE*2.;
+        let pac_startx = SCREEN_WIDTH / 2. - PLAYER_SIZE / 2.;
+        let pac_starty = SCREEN_HEIGHT - PLAYER_SIZE * 2.;
 
         Game {
             gl,
@@ -175,6 +173,10 @@ where
     }
 
     pub fn render(&mut self, args: &RenderArgs) {
+        use crate::utilities::{BAND_SIZE, TEXT_SIZE};
+
+        let position_y = SCREEN_HEIGHT + (BAND_SIZE + TEXT_SIZE as f64) / 2.;
+
         self.gl.draw(args.viewport(), |c, gl| {
             graphics::clear([0., 0., 0.1, 1.], gl);
 
@@ -182,21 +184,31 @@ where
             let ref mut glyphs =
                 GlyphCache::new("./assets/fonts/RoadPixel.ttf", (), texture_settings).unwrap();
 
+            let line = graphics::line::Line::new([0., 1., 0., 1.], 2.);
+
+            graphics::line::Line::draw(
+                &line,
+                [0., SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT],
+                &DrawState::default(),
+                c.transform,
+                gl,
+            );
+
             graphics::text(
                 [1., 0., 0., 1.],
-                22,
+                TEXT_SIZE,
                 format!("Score: {}", self.score).as_str(),
                 glyphs,
-                c.transform.trans(50., 250.),
+                c.transform.trans(50., position_y),
                 gl,
             )
             .unwrap();
             graphics::text(
                 [1., 0., 0., 1.],
-                22,
+                TEXT_SIZE,
                 format!("Lives: {}", self.player.health).as_str(),
                 glyphs,
-                c.transform.trans(50., 300.),
+                c.transform.trans(SCREEN_WIDTH / 2., position_y),
                 gl,
             )
             .unwrap();

@@ -5,6 +5,7 @@ pub mod builder {
 
     use crate::utilities::HALF_PLAYER as HALF_UNIT;
     use crate::utilities::PLAYER_SIZE as UNIT;
+    use crate::utilities::{SCREEN_HEIGHT, SCREEN_WIDTH};
     use crate::{
         corner::Corner,
         map::Wall,
@@ -19,13 +20,31 @@ pub mod builder {
     pub fn new_map() -> (Vec<Wall>, Vec<Corner>) {
         // UNIT is the size of a unit
 
-        let wall_holder: Box<[Box<[Wall]>]> = Box::new([
-            Box::new([Wall::new((UNIT, UNIT), UNIT, HALF_UNIT, BLUE)]),
-            Box::new([Wall::new((ORIGIN, 2.5 * UNIT), 2. * UNIT, UNIT, BLUE)]),
+        let bottom_row = SCREEN_HEIGHT - 1.5 * UNIT;
 
+        let wall_holder: Box<[Box<[Wall]>]> = Box::new([
+            // wall in the top left corner
+            Box::new([Wall::new((UNIT, UNIT), UNIT, HALF_UNIT, BLUE)]),
+
+            // under ^
+            Box::new(
+                [
+                    Wall::new((ORIGIN, 2.5 * UNIT), 2_f64 * UNIT, UNIT, BLUE),
+                    Wall::new((ORIGIN, 4.5 * UNIT), 2_f64 * UNIT, UNIT, BLUE),
+                ]
+            ),
 
             // G shape at top left
             Box::new(U_RIGHT(3. * UNIT, UNIT, 4.5 * UNIT, 4. * UNIT, UNIT, BLUE)),
+
+            // long wall along the top middle of the map
+            Box::new([Wall::new((8. * UNIT, UNIT), 7. * UNIT, HALF_UNIT, BLUE)]),
+
+            // wall in bottom left corner
+            Box::new([Wall::new((0_f64 + UNIT, bottom_row), 1.5 * UNIT, HALF_UNIT, BLUE)]),
+
+            // following: bottom row
+            Box::new([Wall::new((3.5* UNIT, bottom_row), 4.5 * UNIT, HALF_UNIT, BLUE)])
         ]);
 
         let mut walls: Vec<Wall> = Vec::new();

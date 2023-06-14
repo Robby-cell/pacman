@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 mod builder;
 mod corner;
 mod enemy;

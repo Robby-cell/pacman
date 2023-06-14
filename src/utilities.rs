@@ -18,6 +18,7 @@ pub const GHOST_SPEED: f64 = 2_f64;
 pub const WALL_SIZE: f64 = 50_f64;
 pub const UNIT_SIZE: f64 = 20_f64;
 pub const PLAYER_SPEED: f64 = 2_f64;
+pub const TOLERANCE: f64 = PLAYER_SPEED + 1_f64;
 
 pub const TEXT_SIZE: u32 = 24_u32;
 pub const BAND_SIZE: f64 = 40_f64; // the band along the bottom to display the lives/score etc
@@ -33,7 +34,7 @@ pub trait Moveable {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#[derive(PartialEq, Copy, Clone)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub enum Direction {
     Up,
     Right,

@@ -38,7 +38,7 @@ pub fn mainloop() -> Result<(), Box<dyn Error>> {
             .ok()
             .ok_or("Could not create Window")?;
 
-    let mut game = Box::new(Game::<Point>::new(GlGraphics::new(opengl), 3));
+    let mut game = Game::<Point>::new(GlGraphics::new(opengl), 3);
     let mut events = Events::new(EventSettings::new()).ups(60);
     let mut startscreen = StartScreen::new(OpenGL::V4_2);
 
@@ -94,7 +94,7 @@ where
     wall_gl: GlGraphics,
     walls: Vec<Wall>,
     corners: Vec<Corner>,
-    //glyph_cache: GlyphCache,
+    // glyph_cache: GlyphCache,
 }
 
 impl<T> Game<T>
@@ -293,8 +293,6 @@ where
     }
 
     pub fn button_pressed(&mut self, btn: &Button) {
-        match btn {
-            _ => self.player.change_direction(btn),
-        }
+        self.player.change_direction(btn)
     }
 }
